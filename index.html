@@ -1,254 +1,244 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Break-Even Werbebudget Rechner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROAS Break-Even Explorer</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #fafafa;
-    color: #222;
-    max-width: 720px;
-    margin: 40px auto;
-    padding: 0 20px;
-  }
-
-  h1 {
-    font-size: 1.9rem;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 1.6rem;
-  }
-
-  p {
-    color: #555;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  .input-group {
-    display: grid;
-    grid-template-columns: 1fr 120px;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  label {
-    font-weight: 500;
-    font-size: 0.95rem;
-  }
-
-  input {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 0.95rem;
-  }
-
-  button {
-    width: 100%;
-    background: #6c47ff;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 1rem;
-    margin-top: 10px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background: #5738d6;
-  }
-
-  .results {
-    display: none;
-    margin-top: 25px;
-    background: white;
-    border-radius: 14px;
-    padding: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-
-  .result-box {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-top: 12px;
-  }
-
-  .result {
-    background: #f9f9ff;
-    border-radius: 12px;
-    padding: 14px 16px;
-  }
-
-  .result strong {
-    display: block;
-    font-size: 1.2rem;
-    margin-top: 4px;
-    color: #000;
-  }
-
-  #warning {
-    display: none;
-    background: #ffe8e8;
-    color: #b30000;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-    margin-top: 15px;
-  }
-
-  footer {
-    margin-top: 40px;
-    text-align: center;
-    font-size: 0.8rem;
-    color: #666;
-  }
-
-  footer a {
-    color: #6c47ff;
-    text-decoration: none;
-    font-weight: 500;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
+  background: #f4f4f6;
+  padding: 20px;
+}
+.calculator {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  padding: 32px;
+  color: #1c1c1e;
+}
+h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 24px;
+}
+.input-grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.column {
+  flex: 1;
+  min-width: 280px;
+}
+label {
+  font-size: 0.9rem;
+  color: #444;
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+input, .slider-input {
+  padding: 10px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #f9f9f9;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+input:focus, .slider-input:focus {
+  outline: none;
+  border-color: #0071e3;
+  background: white;
+  box-shadow: 0 0 0 2px rgba(0,113,227,0.1);
+}
+.input-blue {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 2px rgba(0,113,227,0.15);
+}
+.button-main {
+  margin-top: 30px;
+  width: 100%;
+  background: #0071e3;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button-main:hover {
+  background: #0a84ff;
+}
+.results {
+  margin-top: 30px;
+  text-align: center;
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.result-card {
+  background: #f5f5f7;
+  padding: 16px;
+  border-radius: 16px;
+  transition: transform 0.3s;
+}
+.result-card.highlight {
+  background: #e8f0fe;
+  box-shadow: 0 0 0 2px #0071e3 inset;
+}
+.result-card h1 {
+  margin: 6px 0;
+  font-size: 1.8rem;
+}
+.slider-container {
+  margin-top: 16px;
+}
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #444;
+}
+canvas {
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
+}
 </style>
 </head>
 <body>
 
-<h1>Break-Even Werbebudget Rechner</h1>
-<p>
-Finde heraus, wie hoch dein Werbebudget maximal sein darf, um bei gegebener Marge und ROAS
-noch profitabel zu bleiben – oder welchen <strong>ROAS du brauchst, um deine externen Kosten zu decken.</strong><br><br>
-Alle Beträge bitte in Euro eingeben. Der Rechner berücksichtigt automatisch 19 % MwSt.
-</p>
+<div class="calculator">
+  <h2>ROAS Break-Even Explorer</h2>
+  <p class="subtitle">Berechne interaktiv, wie sich ROAS und Kampagnenkosten auf deinen Gewinn auswirken.</p>
 
-<div class="input-group">
-  <label>Ø Bestellwert (brutto)</label>
-  <input id="avgOrder" type="number" placeholder="z. B. 60" />
-</div>
-
-<div class="input-group">
-  <label>Variable Kosten pro Bestellung</label>
-  <input id="variableCost" type="number" placeholder="z. B. 20" />
-</div>
-
-<div class="input-group">
-  <label>Handling / Versand pro Bestellung</label>
-  <input id="handlingCost" type="number" placeholder="z. B. 10" />
-</div>
-
-<div class="input-group">
-  <label>Marge (%)</label>
-  <input id="margin" type="number" placeholder="z. B. 40" />
-</div>
-
-<hr style="margin:25px 0; border:none; border-top:1px solid #eee;">
-
-<div class="input-group">
-  <label>Externe Kosten (Agentur etc.)</label>
-  <input id="fixedPro" type="number" placeholder="z. B. 1000" />
-</div>
-
-<div class="input-group">
-  <label>Erwarteter ROAS (Agentur)</label>
-  <input id="roasPro" type="number" step="0.1" placeholder="z. B. 3.0" />
-</div>
-
-<div class="input-group">
-  <label>Eigene Kosten (Inhouse)</label>
-  <input id="fixedSelf" type="number" placeholder="z. B. 0" />
-</div>
-
-<div class="input-group">
-  <label>Erwarteter ROAS (Inhouse)</label>
-  <input id="roasSelf" type="number" step="0.1" placeholder="z. B. 2.0" />
-</div>
-
-<button onclick="calcBudget()">Berechnen</button>
-
-<div id="warning">⚠️ Deine variablen Kosten übersteigen den Nettoerlös pro Bestellung. Bitte überprüfe deine Eingaben.</div>
-
-<div id="results" class="results">
-  <div class="result-box">
-    <div class="result">
-      <label>Max. Werbebudget (Agentur)</label>
-      <strong id="budgetPro">–</strong>
-      <small>für Break-Even bei angegebenem ROAS</small>
+  <div class="input-grid">
+    <!-- Grunddaten -->
+    <div class="column">
+      <h3>Grunddaten</h3>
+      <label>Bruttoumsatz pro Bestellung (EUR)</label>
+      <input id="revenueGross" type="number" placeholder="z. B. 60" oninput="updateValues()">
+      <label>Nettoumsatz (automatisch)</label>
+      <input id="revenueNet" type="number" readonly>
+      <label>Herstellungskosten pro Bestellung (EUR)</label>
+      <input id="cost" type="number" placeholder="z. B. 20" oninput="updateValues()">
+      <label>Versand & Handling (EUR)</label>
+      <input id="shipping" type="number" placeholder="z. B. 10" oninput="updateValues()">
     </div>
-    <div class="result">
-      <label>Erforderlicher ROAS (Agentur)</label>
-      <strong id="roasMinPro">–</strong>
-      <small>um externe Kosten auszugleichen</small>
-    </div>
-    <div class="result">
-      <label>Max. Werbebudget (Inhouse)</label>
-      <strong id="budgetSelf">–</strong>
-      <small>für Break-Even bei angegebenem ROAS</small>
-    </div>
-    <div class="result">
-      <label>Erforderlicher ROAS (Inhouse)</label>
-      <strong id="roasMinSelf">–</strong>
-      <small>um interne Kosten auszugleichen</small>
+
+    <!-- Kampagnenannahmen -->
+    <div class="column">
+      <h3>Kampagnenannahmen</h3>
+      <label>Externe Kosten (Agentur, Tools, €)</label>
+      <input id="fixed" type="number" placeholder="z. B. 1000" oninput="updateValues()">
+      <div class="slider-container">
+        <div class="slider-label">
+          <span>ROAS</span>
+          <span id="roasValue">3.0</span>
+        </div>
+        <input type="range" min="0" max="6" step="0.01" value="3" class="slider-input" id="roasSlider" oninput="updateValues()">
+      </div>
     </div>
   </div>
+
+  <div class="results">
+    <div class="result-grid">
+      <div class="result-card highlight">
+        <p><strong>Break-Even ROAS</strong></p>
+        <h1 id="roasBreakEven">–</h1>
+      </div>
+      <div class="result-card">
+        <p><strong>Gewinn bei aktuellem ROAS</strong></p>
+        <h1 id="profit">–</h1>
+      </div>
+    </div>
+    <canvas id="profitChart" height="200"></canvas>
+  </div>
+
+  <button class="button-main" onclick="updateValues()">Aktualisieren</button>
 </div>
 
-<footer>
-Erstellt mit ❤️ von <a href="https://purple-noon.de" target="_blank">purple-noon.de</a>
-</footer>
-
 <script>
-function calcBudget() {
-  const avgOrderGross = +document.getElementById("avgOrder").value || 0;
-  const variable = +document.getElementById("variableCost").value || 0;
-  const handling = +document.getElementById("handlingCost").value || 0;
-  const vat = 0.19;
+let chart;
 
-  const marginPct = (+document.getElementById("margin").value || 0) / 100;
-  const fixedPro = +document.getElementById("fixedPro").value || 0;
-  const roasPro = +document.getElementById("roasPro").value || 0;
-  const fixedSelf = +document.getElementById("fixedSelf").value || 0;
-  const roasSelf = +document.getElementById("roasSelf").value || 0;
+function updateValues() {
+  const gross = +document.getElementById("revenueGross").value || 0;
+  const cost = +document.getElementById("cost").value || 0;
+  const shipping = +document.getElementById("shipping").value || 0;
+  const fixed = +document.getElementById("fixed").value || 0;
+  const roas = +document.getElementById("roasSlider").value || 0;
 
-  const avgOrderNet = avgOrderGross / (1 + vat);
-  const profitPerOrderNet = avgOrderNet * marginPct - variable - handling;
+  document.getElementById("roasValue").innerText = roas.toFixed(2);
 
-  const warning = document.getElementById("warning");
-  if (profitPerOrderNet <= 0) {
-    warning.style.display = "block";
-    document.getElementById("results").style.display = "none";
-    return;
-  } else {
-    warning.style.display = "none";
+  const net = gross / 1.19;
+  const profitPerOrder = net - cost - shipping;
+  document.getElementById("revenueNet").value = net.toFixed(2);
+
+  const breakEvenROAS = profitPerOrder > 0 ? fixed / profitPerOrder : 0;
+  document.getElementById("roasBreakEven").innerText = breakEvenROAS > 0 ? breakEvenROAS.toFixed(2) : "–";
+
+  const profit = profitPerOrder * roas - fixed;
+  document.getElementById("profit").innerText = profit.toFixed(2) + " €";
+
+  updateChart(profitPerOrder, fixed);
+}
+
+function updateChart(profitPerOrder, fixed) {
+  const labels = [];
+  const data = [];
+  for (let r = 0; r <= 6; r += 0.05) {
+    labels.push(r.toFixed(2));
+    data.push((profitPerOrder * r - fixed).toFixed(2));
   }
 
-  // --- Agentur ---
-  const revenuePro = avgOrderGross * roasPro; 
-  const netRevPro = revenuePro / (1 + vat);
-  const retainedPerEuroPro = (netRevPro * marginPct - variable - handling) / revenuePro; 
-  const budgetPro = fixedPro / retainedPerEuroPro;
-  const roasMinPro = (budgetPro * (1 + vat)) / avgOrderGross;
+  if(chart) chart.destroy();
 
-  // --- Eigenleistung ---
-  const revenueSelf = avgOrderGross * roasSelf;
-  const netRevSelf = revenueSelf / (1 + vat);
-  const retainedPerEuroSelf = (netRevSelf * marginPct - variable - handling) / revenueSelf;
-  const budgetSelf = fixedSelf / retainedPerEuroSelf;
-  const roasMinSelf = (budgetSelf * (1 + vat)) / avgOrderGross;
-
-  document.getElementById("budgetPro").innerText = isFinite(budgetPro) ? budgetPro.toFixed(0) + " €" : "–";
-  document.getElementById("budgetSelf").innerText = isFinite(budgetSelf) ? budgetSelf.toFixed(0) + " €" : "–";
-  document.getElementById("roasMinPro").innerText = isFinite(roasMinPro) ? roasMinPro.toFixed(2) : "–";
-  document.getElementById("roasMinSelf").innerText = isFinite(roasMinSelf) ? roasMinSelf.toFixed(2) : "–";
-  document.getElementById("results").style.display = "block";
+  const ctx = document.getElementById('profitChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Gewinn (€)',
+        data: data,
+        borderColor: '#0071e3',
+        backgroundColor: 'rgba(0,113,227,0.1)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true },
+        x: { title: { display: true, text: 'ROAS' } }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
 }
+
+// Initial
+updateValues();
 </script>
 
 </body>
