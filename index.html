@@ -10,7 +10,7 @@ body {
   background: #f4f4f6;
   padding: 20px;
 }
-.calculator {
+.budget-calculator {
   max-width: 900px;
   margin: 40px auto;
   background: #fff;
@@ -46,7 +46,7 @@ label {
   margin-bottom: 6px;
   margin-top: 12px;
 }
-input {
+input[type="number"], input[type="range"] {
   padding: 10px;
   border: 1px solid #d2d2d7;
   border-radius: 10px;
@@ -85,6 +85,7 @@ input:focus {
 .results {
   margin-top: 30px;
   text-align: center;
+  animation: fadeIn 0.6s ease forwards;
   display: none;
 }
 .result-grid {
@@ -106,6 +107,16 @@ input:focus {
   margin: 6px 0;
   font-size: 1.8rem;
 }
+.slider-container {
+  margin-top: 16px;
+}
+.slider-container label {
+  margin-bottom: 4px;
+}
+.slider-value {
+  font-weight: 600;
+  margin-left: 8px;
+}
 footer {
   text-align: center;
   margin-top: 20px;
@@ -116,33 +127,45 @@ footer a {
   color: #0071e3;
   text-decoration: none;
 }
+@keyframes fadeIn {
+  from {opacity:0;}
+  to {opacity:1;}
+}
 </style>
 </head>
 <body>
 
-<div class="calculator">
+<div class="budget-calculator">
   <h2>Marketing-Budget-Rechner</h2>
-  <p class="subtitle">Finde heraus, wie viel Budget du brauchst, um bei deinem Ziel-ROAS und Fixkosten Break-Even zu erreichen.</p>
+  <p class="subtitle">Berechne das benötigte Werbebudget bei gegebenem ROAS und Fixkosten.</p>
 
   <div class="input-grid">
     <div class="column">
       <h3>Grunddaten</h3>
-      <label>Bruttoumsatz pro Bestellung (EUR)</label>
+      <label>Bruttoumsatz pro Bestellung (in EUR)</label>
       <input id="revenueGross" type="number" placeholder="z. B. 60" oninput="updateNetto()">
       <label>Nettoumsatz (automatisch)</label>
       <input id="revenueNet" type="number" readonly>
-      <label>Herstellungskosten pro Bestellung (EUR)</label>
-      <input id="cost" type="number" placeholder="z. B. 20">
-      <label>Versand & Handling (EUR)</label>
-      <input id="shipping" type="number" placeholder="z. B. 10">
+      <label>Variable Kosten pro Bestellung (Produktion + Versand, in EUR)</label>
+      <input id="variableCost" type="number" placeholder="z. B. 30" oninput="updateProfit()">
+
+      <div class="field-live">
+        <label>Profit pro Bestellung</label>
+        <h2 id="profitPerOrder">–</h2>
+      </div>
     </div>
 
     <div class="column">
-      <h3>Kampagne & Ziel</h3>
-      <label>Externe Kosten / Fixkosten (EUR)</label>
-      <input id="fixed" type="number" placeholder="z. B. 1000">
-      <label>Ziel-ROAS</label>
-      <input id="targetRoas" type="number" placeholder="z. B. 3.0">
+      <h3>Szenario</h3>
+      <label>ROAS</label>
+      <input id="roas" type="number" placeholder="z. B. 3" oninput="updateProfit()">
+      <label>Fixkosten extern (z. B. Agentur, Tools) in EUR</label>
+      <input id="fixedCost" type="number" placeholder="z. B. 1000" oninput="updateProfit()">
+
+      <div class="slider-container">
+        <label>ROAS interaktiv: <span id="roasValue" class="slider-value">3</span></label>
+        <input id="roasSlider" type="range" min="0.1" max="10" step="0.1" value="3" oninput="syncROAS(this.value)">
+      </div>
     </div>
   </div>
 
@@ -151,12 +174,12 @@ footer a {
   <div class="results" id="results">
     <div class="result-grid">
       <div class="result-card highlight">
-        <p><strong>Break-Even Werbebudget</strong></p>
-        <h1 id="budgetNeeded">–</h1>
+        <p><strong>Profit pro Werbe-Euro</strong></p>
+        <h1 id="profitPerEuro">–</h1>
       </div>
       <div class="result-card">
-        <p><strong>Ertrag pro Bestellung</strong></p>
-        <h1 id="profitPerOrder">–</h1>
+        <p><strong>Benötigtes Werbebudget für Break-Even</strong></p>
+        <h1 id="neededBudget">–</h1>
       </div>
     </div>
   </div>
@@ -170,28 +193,44 @@ footer a {
 function updateNetto() {
   const gross = +document.getElementById("revenueGross").value || 0;
   const net = gross / 1.19;
-  document.getElementById("revenueNet").value = net ? net.toFixed(2) : "";
+  document.getElementById("revenueNet").value = net.toFixed(2);
+  updateProfit();
+}
+
+function updateProfit() {
+  const revenueNet = +document.getElementById("revenueNet").value || 0;
+  const variable = +document.getElementById("variableCost").value || 0;
+  const profitPerOrder = revenueNet - variable;
+  document.getElementById("profitPerOrder").innerText = profitPerOrder.toFixed(2) + " €";
+  calcBudget();
+}
+
+function syncROAS(value) {
+  document.getElementById("roas").value = value;
+  document.getElementById("roasValue").innerText = value;
+  calcBudget();
 }
 
 function calcBudget() {
+  const revenueGross = +document.getElementById("revenueGross").value || 0;
   const revenueNet = +document.getElementById("revenueNet").value || 0;
-  const cost = +document.getElementById("cost").value || 0;
-  const shipping = +document.getElementById("shipping").value || 0;
-  const fixed = +document.getElementById("fixed").value || 0;
-  const roas = +document.getElementById("targetRoas").value || 0;
+  const variable = +document.getElementById("variableCost").value || 0;
+  const roas = +document.getElementById("roas").value || 0;
+  const fixed = +document.getElementById("fixedCost").value || 0;
 
-  const profitPerOrder = revenueNet - cost - shipping;
-  document.getElementById("profitPerOrder").innerText = profitPerOrder.toFixed(2) + " €";
+  const profitPerOrder = revenueNet - variable;
+  const profitPerEuro = (profitPerOrder / revenueGross) * roas - 1;
 
-  if(profitPerOrder <= 0 || roas <= 0){
-    document.getElementById("budgetNeeded").innerText = "nicht rentabel";
-    document.getElementById("results").style.display = "block";
-    return;
+  let neededBudget;
+  if(profitPerEuro <= 0) {
+    neededBudget = "nie rentabel";
+  } else {
+    neededBudget = (fixed / profitPerEuro).toFixed(0) + " €";
   }
 
-  const budget = (fixed / profitPerOrder) / roas * profitPerOrder;
-  document.getElementById("budgetNeeded").innerText = budget.toFixed(0) + " €";
-  document.getElementById("results").style.display = "block";
+  document.getElementById("profitPerEuro").innerText = profitPerEuro.toFixed(3);
+  document.getElementById("neededBudget").innerText = neededBudget;
+  document.getElementById("results").style.display = "grid";
 }
 
 // initial
