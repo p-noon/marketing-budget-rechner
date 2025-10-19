@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROAS Break-Even Explorer</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Marketing-Budget-Rechner</title>
 <style>
 body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
@@ -47,7 +46,7 @@ label {
   margin-bottom: 6px;
   margin-top: 12px;
 }
-input, .slider-input {
+input {
   padding: 10px;
   border: 1px solid #d2d2d7;
   border-radius: 10px;
@@ -57,7 +56,7 @@ input, .slider-input {
   box-sizing: border-box;
   transition: all 0.2s;
 }
-input:focus, .slider-input:focus {
+input:focus {
   outline: none;
   border-color: #0071e3;
   background: white;
@@ -86,6 +85,7 @@ input:focus, .slider-input:focus {
 .results {
   margin-top: 30px;
   text-align: center;
+  display: none;
 }
 .result-grid {
   display: grid;
@@ -106,139 +106,96 @@ input:focus, .slider-input:focus {
   margin: 6px 0;
   font-size: 1.8rem;
 }
-.slider-container {
-  margin-top: 16px;
-}
-.slider-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #444;
-}
-canvas {
+footer {
+  text-align: center;
   margin-top: 20px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 12px;
+  font-size: 13px;
+  color: #999;
+}
+footer a {
+  color: #0071e3;
+  text-decoration: none;
 }
 </style>
 </head>
 <body>
 
 <div class="calculator">
-  <h2>ROAS Break-Even Explorer</h2>
-  <p class="subtitle">Berechne interaktiv, wie sich ROAS und Kampagnenkosten auf deinen Gewinn auswirken.</p>
+  <h2>Marketing-Budget-Rechner</h2>
+  <p class="subtitle">Finde heraus, wie viel Budget du brauchst, um bei deinem Ziel-ROAS und Fixkosten Break-Even zu erreichen.</p>
 
   <div class="input-grid">
-    <!-- Grunddaten -->
     <div class="column">
       <h3>Grunddaten</h3>
       <label>Bruttoumsatz pro Bestellung (EUR)</label>
-      <input id="revenueGross" type="number" placeholder="z. B. 60" oninput="updateValues()">
+      <input id="revenueGross" type="number" placeholder="z. B. 60" oninput="updateNetto()">
       <label>Nettoumsatz (automatisch)</label>
       <input id="revenueNet" type="number" readonly>
       <label>Herstellungskosten pro Bestellung (EUR)</label>
-      <input id="cost" type="number" placeholder="z. B. 20" oninput="updateValues()">
+      <input id="cost" type="number" placeholder="z. B. 20">
       <label>Versand & Handling (EUR)</label>
-      <input id="shipping" type="number" placeholder="z. B. 10" oninput="updateValues()">
+      <input id="shipping" type="number" placeholder="z. B. 10">
     </div>
 
-    <!-- Kampagnenannahmen -->
     <div class="column">
-      <h3>Kampagnenannahmen</h3>
-      <label>Externe Kosten (Agentur, Tools, €)</label>
-      <input id="fixed" type="number" placeholder="z. B. 1000" oninput="updateValues()">
-      <div class="slider-container">
-        <div class="slider-label">
-          <span>ROAS</span>
-          <span id="roasValue">3.0</span>
-        </div>
-        <input type="range" min="0" max="6" step="0.01" value="3" class="slider-input" id="roasSlider" oninput="updateValues()">
-      </div>
+      <h3>Kampagne & Ziel</h3>
+      <label>Externe Kosten / Fixkosten (EUR)</label>
+      <input id="fixed" type="number" placeholder="z. B. 1000">
+      <label>Ziel-ROAS</label>
+      <input id="targetRoas" type="number" placeholder="z. B. 3.0">
     </div>
   </div>
 
-  <div class="results">
+  <button class="button-main" onclick="calcBudget()">Berechnen</button>
+
+  <div class="results" id="results">
     <div class="result-grid">
       <div class="result-card highlight">
-        <p><strong>Break-Even ROAS</strong></p>
-        <h1 id="roasBreakEven">–</h1>
+        <p><strong>Break-Even Werbebudget</strong></p>
+        <h1 id="budgetNeeded">–</h1>
       </div>
       <div class="result-card">
-        <p><strong>Gewinn bei aktuellem ROAS</strong></p>
-        <h1 id="profit">–</h1>
+        <p><strong>Ertrag pro Bestellung</strong></p>
+        <h1 id="profitPerOrder">–</h1>
       </div>
     </div>
-    <canvas id="profitChart" height="200"></canvas>
   </div>
 
-  <button class="button-main" onclick="updateValues()">Aktualisieren</button>
+  <footer>
+    Tool entwickelt von <a href="https://www.purple-noon.de" target="_blank">Purple Noon</a>
+  </footer>
 </div>
 
 <script>
-let chart;
-
-function updateValues() {
+function updateNetto() {
   const gross = +document.getElementById("revenueGross").value || 0;
+  const net = gross / 1.19;
+  document.getElementById("revenueNet").value = net ? net.toFixed(2) : "";
+}
+
+function calcBudget() {
+  const revenueNet = +document.getElementById("revenueNet").value || 0;
   const cost = +document.getElementById("cost").value || 0;
   const shipping = +document.getElementById("shipping").value || 0;
   const fixed = +document.getElementById("fixed").value || 0;
-  const roas = +document.getElementById("roasSlider").value || 0;
+  const roas = +document.getElementById("targetRoas").value || 0;
 
-  document.getElementById("roasValue").innerText = roas.toFixed(2);
+  const profitPerOrder = revenueNet - cost - shipping;
+  document.getElementById("profitPerOrder").innerText = profitPerOrder.toFixed(2) + " €";
 
-  const net = gross / 1.19;
-  const profitPerOrder = net - cost - shipping;
-  document.getElementById("revenueNet").value = net.toFixed(2);
-
-  const breakEvenROAS = profitPerOrder > 0 ? fixed / profitPerOrder : 0;
-  document.getElementById("roasBreakEven").innerText = breakEvenROAS > 0 ? breakEvenROAS.toFixed(2) : "–";
-
-  const profit = profitPerOrder * roas - fixed;
-  document.getElementById("profit").innerText = profit.toFixed(2) + " €";
-
-  updateChart(profitPerOrder, fixed);
-}
-
-function updateChart(profitPerOrder, fixed) {
-  const labels = [];
-  const data = [];
-  for (let r = 0; r <= 6; r += 0.05) {
-    labels.push(r.toFixed(2));
-    data.push((profitPerOrder * r - fixed).toFixed(2));
+  if(profitPerOrder <= 0 || roas <= 0){
+    document.getElementById("budgetNeeded").innerText = "nicht rentabel";
+    document.getElementById("results").style.display = "block";
+    return;
   }
 
-  if(chart) chart.destroy();
-
-  const ctx = document.getElementById('profitChart').getContext('2d');
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Gewinn (€)',
-        data: data,
-        borderColor: '#0071e3',
-        backgroundColor: 'rgba(0,113,227,0.1)',
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true },
-        x: { title: { display: true, text: 'ROAS' } }
-      },
-      plugins: {
-        legend: { display: false }
-      }
-    }
-  });
+  const budget = (fixed / profitPerOrder) / roas * profitPerOrder;
+  document.getElementById("budgetNeeded").innerText = budget.toFixed(0) + " €";
+  document.getElementById("results").style.display = "block";
 }
 
-// Initial
-updateValues();
+// initial
+updateNetto();
 </script>
 
 </body>
