@@ -125,6 +125,47 @@ footer a {
   color: #0071e3;
   text-decoration: none;
 }
+footer a:hover {
+  text-decoration: underline;
+}
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.overlay-content {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.overlay-content textarea {
+  width: 100%;
+  height: 120px;
+  font-family: monospace;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+.close-btn {
+  background: #0071e3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  cursor: pointer;
+}
+.close-btn:hover {
+  background: #0a84ff;
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -175,8 +216,18 @@ footer a {
   </div>
 
   <footer>
-    Tool entwickelt von <a href="https://www.purple-noon.de" target="_blank">Purple Noon</a>
+    <a href="#" id="embedLink"><strong>🔗 Rechner einbetten / teilen</strong></a> – entwickelt von 
+    <a href="https://www.purple-noon.de" target="_blank">Purple Noon</a>
   </footer>
+</div>
+
+<!-- Embed Overlay -->
+<div class="overlay" id="overlay">
+  <div class="overlay-content">
+    <h3>Einbettungscode:</h3>
+    <textarea readonly><iframe src="https://p-noon.github.io/marketing-budget-rechner" width="100%" height="950" style="border:none;"></iframe></textarea>
+    <button class="close-btn" onclick="closeOverlay()">Schließen</button>
+  </div>
 </div>
 
 <script>
@@ -217,7 +268,7 @@ function calcBudget() {
 
   let neededBudget = 0;
   let breakEvenRoas = null;
-  let maxBudget = 10000; // Standardanzeige
+  let maxBudget = 10000;
 
   if (fixed <= 100) {
     if (profitPerEuro > 0) {
@@ -236,12 +287,10 @@ function calcBudget() {
     maxBudget = neededBudget * 2;
   }
 
-  // Bei negativem ROAS negatives Budget anzeigen
   if (profitPerEuro < 0) {
     document.getElementById("neededBudget").innerText = "-";
   }
 
-  // Diagrammdaten
   const budgets = [];
   const profits = [];
   for (let i = 0; i <= maxBudget; i += 500) {
@@ -275,23 +324,26 @@ function drawChart(budgets, profits) {
       responsive: true,
       interaction: { mode: 'nearest', intersect: false },
       scales: {
-        x: {
-          title: { display: true, text: 'Marketingbudget (€)' },
-          min: 0,
-          max: Math.max(...budgets)
-        },
+        x: { title: { display: true, text: 'Marketingbudget (€)' }, min: 0, max: Math.max(...budgets) },
         y: {
           title: { display: true, text: 'Gewinn (€)' },
-          grid: {
-            color: ctx => ctx.tick.value === 0 ? '#d70015' : '#ddd',
-            lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
-          }
+          grid: { color: ctx => ctx.tick.value === 0 ? '#d70015' : '#ddd', lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1 }
         }
       },
       plugins: { legend: { display: false } }
     }
   });
 }
+
+// Embed overlay
+function closeOverlay() { document.getElementById("overlay").style.display = "none"; }
+document.getElementById("embedLink").addEventListener("click", e => {
+  e.preventDefault();
+  document.getElementById("overlay").style.display = "flex";
+});
+
+// initial
+updateNetto();
 </script>
 
 </body>
