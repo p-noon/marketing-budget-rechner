@@ -128,7 +128,6 @@ footer a {
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 </head>
 <body>
 
@@ -220,6 +219,7 @@ function calcBudget() {
   let breakEvenRoas = null;
 
   if (profitPerEuro <= 0) {
+    document.getElementById("neededBudget").innerText = "–";
     breakEvenRoas = gross / profitPerOrder;
     warning.innerText = "Unter einem ROAS von " + breakEvenRoas.toFixed(2).replace('.', ',') + " wird Verlust generiert.";
   } else {
@@ -228,10 +228,10 @@ function calcBudget() {
     warning.innerText = "";
   }
 
-  // Diagrammdaten (auch für Verlustfälle)
+  // Diagrammdaten
   const budgets = [];
   const profits = [];
-  const maxBudget = neededBudget > 0 ? neededBudget * 1.5 : fixed * 10;
+  const maxBudget = profitPerEuro > 0 ? neededBudget * 2 : 10000;
 
   for (let i = 0; i <= maxBudget; i += 500) {
     const profit = i * profitPerEuro - fixed;
@@ -270,6 +270,8 @@ function drawChart(budgets, profits) {
         },
         y: {
           title: { display: true, text: 'Gewinn (€)' },
+          min: Math.min(...profits),
+          max: Math.max(...profits),
           grid: {
             color: ctx => ctx.tick.value === 0 ? '#d70015' : '#ddd',
             lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
@@ -282,23 +284,8 @@ function drawChart(budgets, profits) {
           callbacks: {
             label: ctx => 'Gewinn: ' + formatNumber(ctx.parsed.y) + ' €'
           }
-        },
-        zoom: {
-          zoom: {
-            wheel: { enabled: true },
-            pinch: { enabled: true },
-            mode: 'y'
-          },
-          pan: {
-            enabled: true,
-            mode: 'y'
-          },
-          limits: {
-            y: { min: 'original', max: 'original' }
-          }
         }
-      },
-      onClick: () => chart.resetZoom()
+      }
     }
   });
 }
