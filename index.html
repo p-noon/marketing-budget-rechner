@@ -1,308 +1,220 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marketing-Budget-Rechner</title>
-<style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
-  background: #f4f4f6;
-  padding: 20px;
-}
-.budget-calculator {
-  max-width: 950px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 24px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  padding: 32px;
-  color: #1c1c1e;
-}
-h2 {
-  text-align: center;
-  font-size: 1.8rem;
-  margin-bottom: 6px;
-}
-.subtitle {
-  text-align: center;
-  color: #666;
-  margin-bottom: 24px;
-}
-.input-grid {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-.column {
-  flex: 1;
-  min-width: 280px;
-}
-label {
-  font-size: 0.9rem;
-  color: #444;
-  display: block;
-  margin-bottom: 6px;
-  margin-top: 12px;
-}
-input {
-  padding: 10px;
-  border: 1px solid #d2d2d7;
-  border-radius: 10px;
-  font-size: 1rem;
-  background: #f9f9f9;
-  width: 100%;
-  box-sizing: border-box;
-  transition: all 0.2s;
-}
-input:focus {
-  outline: none;
-  border-color: #0071e3;
-  background: white;
-  box-shadow: 0 0 0 2px rgba(0,113,227,0.1);
-}
-.info {
-  font-size: 0.85rem;
-  color: #0071e3;
-  margin-top: 6px;
-}
-.button-main {
-  margin-top: 30px;
-  width: 100%;
-  background: #0071e3;
-  color: white;
-  font-weight: 600;
-  border: none;
-  border-radius: 14px;
-  padding: 14px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.button-main:hover {
-  background: #0a84ff;
-}
-.results {
-  margin-top: 30px;
-  text-align: center;
-  display: none;
-}
-.result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.result-card {
-  background: #f5f5f7;
-  padding: 16px;
-  border-radius: 16px;
-}
-.result-card.highlight {
-  background: #e8f0fe;
-  box-shadow: 0 0 0 2px #0071e3 inset;
-}
-.result-card h1 {
-  margin: 6px 0;
-  font-size: 1.8rem;
-}
-canvas {
-  margin-top: 20px;
-  width: 100%;
-  height: 350px;
-}
-.warning {
-  color: #d70015;
-  font-weight: 600;
-  margin-top: 10px;
-}
-footer {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 13px;
-  color: #999;
-}
-footer a {
-  color: #0071e3;
-  text-decoration: none;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing-Budget-Rechner</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.08);
+      width: 900px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #1e3a8a;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem 2rem;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    .results {
+      margin-top: 1.5rem;
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 0.75rem;
+    }
+
+    canvas {
+      margin-top: 2rem;
+      background: #f8fafc;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .chart-container {
+      height: 400px;
+      overflow: auto;
+    }
+
+    .negative {
+      color: #dc2626;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Marketing-Budget-Rechner</h1>
 
-<div class="budget-calculator">
-  <h2>Marketing-Budget-Rechner</h2>
-  <p class="subtitle">Berechne, welches Budget du brauchst – und wie sich dein Gewinn bei unterschiedlichem Werbeeinsatz verändert.</p>
-
-  <div class="input-grid">
-    <div class="column">
-      <h3>Grunddaten</h3>
-      <label>Bruttoumsatz pro Bestellung (in €)</label>
-      <input id="revenueGross" type="number" placeholder="z. B. 60" step="0.01" oninput="updateNetto()">
-      <label>Netto-Umsatz (berechnet)</label>
-      <input id="revenueNet" type="text" readonly style="background:#f0f0f0;">
-      <label>Variable Kosten (Produktion + Versand, in €)</label>
-      <input id="variableCost" type="number" placeholder="z. B. 30" step="0.01" oninput="updateNetto()">
-      <div id="netProfitInfo" class="info"></div>
-    </div>
-
-    <div class="column">
-      <h3>Szenario</h3>
-      <label>Fixkosten extern (z. B. Agentur, Tools, in €)</label>
-      <input id="fixedCost" type="number" placeholder="z. B. 1000" step="1">
-      <label>ROAS</label>
-      <input id="roas" type="number" placeholder="z. B. 3" step="0.1">
-    </div>
-  </div>
-
-  <button class="button-main" onclick="calcBudget()">Berechnen</button>
-
-  <div class="results" id="results">
-    <div class="result-grid">
-      <div class="result-card highlight">
-        <p><strong>Profit pro Werbe-Euro</strong></p>
-        <h1 id="profitPerEuro">–</h1>
+    <div class="grid">
+      <div>
+        <label>Bruttoumsatz pro Bestellung (€)</label>
+        <input type="number" id="brutto" value="60" step="0.01">
       </div>
-      <div class="result-card">
-        <p><strong>Benötigtes Werbebudget (Break-Even)</strong></p>
-        <h1 id="neededBudget">–</h1>
+      <div>
+        <label>Netto (automatisch berechnet)</label>
+        <input type="text" id="netto" readonly>
+      </div>
+      <div>
+        <label>Produktionskosten (€)</label>
+        <input type="number" id="produktion" value="20" step="0.01">
+      </div>
+      <div>
+        <label>Handling & Versand (€)</label>
+        <input type="number" id="handling" value="10" step="0.01">
+      </div>
+      <div>
+        <label>Geplanter ROAS</label>
+        <input type="number" id="roas" value="3" step="0.1">
+      </div>
+      <div>
+        <label>Externe Fixkosten / Agenturkosten (€)</label>
+        <input type="number" id="fixkosten" value="1000" step="0.01">
       </div>
     </div>
 
-    <p id="warning" class="warning"></p>
-    <canvas id="budgetChart"></canvas>
+    <button onclick="calculate()">Berechnen</button>
+
+    <div class="results" id="results"></div>
+
+    <div class="chart-container">
+      <canvas id="budgetChart"></canvas>
+    </div>
   </div>
 
-  <footer>
-    Tool entwickelt von <a href="https://www.purple-noon.de" target="_blank">Purple Noon</a>
-  </footer>
-</div>
-
-<script>
-let chart;
-
-function formatNumber(num) {
-  return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function updateNetto() {
-  const gross = +document.getElementById("revenueGross").value || 0;
-  const variable = +document.getElementById("variableCost").value || 0;
-  const net = gross / 1.19;
-  const ertrag = net - variable;
-  document.getElementById("revenueNet").value = formatNumber(net) + " €";
-  if (gross > 0) {
-    document.getElementById("netProfitInfo").innerText =
-      "Netto-Ertrag pro Bestellung: " + formatNumber(ertrag) + " €";
-  } else {
-    document.getElementById("netProfitInfo").innerText = "";
-  }
-}
-
-function calcBudget() {
-  const gross = +document.getElementById("revenueGross").value || 0;
-  const variable = +document.getElementById("variableCost").value || 0;
-  const roas = +document.getElementById("roas").value || 0;
-  const fixed = +document.getElementById("fixedCost").value || 0;
-
-  const net = gross / 1.19;
-  const profitPerOrder = net - variable;
-  const profitPerEuro = (profitPerOrder / gross) * roas - 1;
-  const results = document.getElementById("results");
-  const warning = document.getElementById("warning");
-  results.style.display = "block";
-
-  document.getElementById("profitPerEuro").innerText = formatNumber(profitPerEuro);
-
-  let neededBudget = 0;
-  let breakEvenRoas = null;
-
-  if (profitPerEuro <= 0) {
-    breakEvenRoas = gross / profitPerOrder;
-    warning.innerText = "Unter einem ROAS von " + breakEvenRoas.toFixed(2).replace('.', ',') + " wird Verlust generiert.";
-  } else {
-    neededBudget = fixed / profitPerEuro;
-    document.getElementById("neededBudget").innerText = formatNumber(neededBudget) + " €";
-    warning.innerText = "";
-  }
-
-  // Diagrammdaten (auch für Verlustfälle)
-  const budgets = [];
-  const profits = [];
-  const maxBudget = neededBudget > 0 ? neededBudget * 1.5 : fixed * 10;
-
-  for (let i = 0; i <= maxBudget; i += 500) {
-    const profit = i * profitPerEuro - fixed;
-    budgets.push(i);
-    profits.push(profit);
-  }
-
-  drawChart(budgets, profits);
-}
-
-function drawChart(budgets, profits) {
-  const ctx = document.getElementById('budgetChart').getContext('2d');
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: budgets.map(b => b.toLocaleString('de-DE')),
-      datasets: [{
-        label: 'Gewinn',
-        data: profits,
-        borderColor: '#0071e3',
-        borderWidth: 2,
-        fill: false,
-        pointRadius: 0,
-        tension: 0.15
-      }]
-    },
-    options: {
-      responsive: true,
-      interaction: { mode: 'nearest', intersect: false },
-      scales: {
-        x: {
-          title: { display: true, text: 'Marketingbudget (€)' },
-          ticks: { stepSize: 500 }
-        },
-        y: {
-          title: { display: true, text: 'Gewinn (€)' },
-          grid: {
-            color: ctx => ctx.tick.value === 0 ? '#d70015' : '#ddd',
-            lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
-          }
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => 'Gewinn: ' + formatNumber(ctx.parsed.y) + ' €'
-          }
-        },
-        zoom: {
-          zoom: {
-            wheel: { enabled: true },
-            pinch: { enabled: true },
-            mode: 'y'
-          },
-          pan: {
-            enabled: true,
-            mode: 'y'
-          },
-          limits: {
-            y: { min: 'original', max: 'original' }
-          }
-        }
-      },
-      onClick: () => chart.resetZoom()
+  <script>
+    function formatNumber(num) {
+      return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-  });
-}
-</script>
 
+    function calculate() {
+      const brutto = parseFloat(document.getElementById("brutto").value);
+      const produktion = parseFloat(document.getElementById("produktion").value);
+      const handling = parseFloat(document.getElementById("handling").value);
+      const roas = parseFloat(document.getElementById("roas").value);
+      const fixkosten = parseFloat(document.getElementById("fixkosten").value);
+
+      const netto = brutto / 1.19;
+      const ertragProKunde = netto - produktion - handling;
+      const profitProWerbeEuro = (ertragProKunde / brutto) * roas - 1;
+
+      document.getElementById("netto").value = formatNumber(netto);
+
+      let resultsHTML = `
+        <strong>Ertrag pro Bestellung (netto):</strong> ${formatNumber(ertragProKunde)} €<br>
+        <strong>Profit pro Werbe-Euro:</strong> ${formatNumber(profitProWerbeEuro)} €<br>
+      `;
+
+      if (profitProWerbeEuro > 0) {
+        const benoetigtesBudget = fixkosten / profitProWerbeEuro;
+        resultsHTML += `<strong>Benötigtes Werbebudget (Break-Even):</strong> ${formatNumber(benoetigtesBudget)} €`;
+        drawChart(roas, ertragProKunde, brutto, benoetigtesBudget, fixkosten);
+      } else {
+        resultsHTML += `<span class="negative">Unter ROAS ${formatNumber((brutto / ertragProKunde).toFixed(2))} wird Verlust generiert.</span>`;
+        drawChart(roas, ertragProKunde, brutto, null, fixkosten);
+      }
+
+      document.getElementById("results").innerHTML = resultsHTML;
+    }
+
+    let chart;
+
+    function drawChart(roas, ertragProKunde, brutto, breakEvenBudget, fixkosten) {
+      const ctx = document.getElementById('budgetChart').getContext('2d');
+      const budgets = Array.from({ length: 20 }, (_, i) => i * 500);
+      const gewinne = budgets.map(b => (b * ((ertragProKunde / brutto) * roas - 1)) - fixkosten);
+
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: budgets,
+          datasets: [{
+            label: 'Gewinn bei gegebenem Budget (€)',
+            data: gewinne,
+            borderColor: '#2563eb',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: ctx => `Gewinn: ${formatNumber(ctx.parsed.y)} €`
+              }
+            },
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: { color: '#e2e8f0' },
+              title: { display: true, text: 'Gewinn (€)' }
+            },
+            x: {
+              grid: { color: '#e2e8f0' },
+              title: { display: true, text: 'Marketing-Budget (€)' }
+            }
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>
