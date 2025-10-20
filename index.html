@@ -1,220 +1,292 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketing-Budget-Rechner</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      display: flex;
-      justify-content: center;
-      padding: 2rem;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Marketing-Budget-Rechner — interaktiv</title>
 
-    .container {
-      background: white;
-      padding: 2rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.08);
-      width: 900px;
-    }
+<!-- Chart.js + Zoom plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      color: #1e3a8a;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem 2rem;
-    }
-
-    label {
-      font-weight: 600;
-      margin-bottom: 0.3rem;
-      display: block;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.5rem 0.75rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 0.5rem;
-      font-size: 1rem;
-    }
-
-    button {
-      background: #2563eb;
-      color: white;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 1rem;
-    }
-
-    button:hover {
-      background: #1e40af;
-    }
-
-    .results {
-      margin-top: 1.5rem;
-      background: #f1f5f9;
-      padding: 1rem;
-      border-radius: 0.75rem;
-    }
-
-    canvas {
-      margin-top: 2rem;
-      background: #f8fafc;
-      border-radius: 0.75rem;
-      padding: 1rem;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .chart-container {
-      height: 400px;
-      overflow: auto;
-    }
-
-    .negative {
-      color: #dc2626;
-    }
-  </style>
+<style>
+  :root{font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:#f6f7fb;color:#0f172a}
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px;display:flex;justify-content:center}
+  .card{width:920px;max-width:98%;background:white;border-radius:14px;padding:26px;box-shadow:0 8px 30px rgba(8,10,25,0.06)}
+  h1{margin:0 0 8px;font-size:20px;text-align:left}
+  p.lead{margin:0 0 18px;color:#374151}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  label{display:block;font-size:13px;color:#111;margin-bottom:6px}
+  input[type=number], input[type=text]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;font-size:14px;background:#fbfcff}
+  .small{font-size:13px;color:#6b7280;margin-top:6px}
+  .btn{display:inline-block;width:100%;padding:12px;border-radius:10px;border:0;background:#0071e3;color:#fff;font-weight:600;cursor:pointer;margin-top:14px}
+  .btn:hover{background:#005ecc}
+  .results{margin-top:18px}
+  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card-result{background:#f5f7ff;padding:12px;border-radius:10px;text-align:center}
+  .card-result h2{margin:8px 0;font-size:1.3rem;color:#0071e3}
+  .card-result .muted{color:#5b6770;font-size:13px}
+  #warning{color:#b91c1c;font-weight:600;margin-top:10px}
+  .chart-wrap{margin-top:18px;border-radius:12px;padding:10px;background:#fff}
+  canvas{width:100%!important;height:360px!important}
+  footer{margin-top:16px;color:#6b7280;font-size:13px;text-align:right}
+</style>
 </head>
 <body>
-  <div class="container">
+  <main class="card" role="main">
     <h1>Marketing-Budget-Rechner</h1>
+    <p class="lead">Gebe Brutto-Warenkorb, Produktions- & Versandkosten ein. Ziel-ROAS und externe Fixkosten (z. B. Agentur) vorgeben — auf Klick berechnet der Rechner Profit/Euro und das benötigte Budget. Chart interaktiv: zoomen (Mausrad) & pannen (ziehen) auf Y.</p>
 
     <div class="grid">
+      <!-- links: Grunddaten -->
       <div>
-        <label>Bruttoumsatz pro Bestellung (€)</label>
-        <input type="number" id="brutto" value="60" step="0.01">
+        <label for="revenueGross">Bruttoumsatz pro Bestellung (€)</label>
+        <input id="revenueGross" type="number" step="0.01" value="60" oninput="updateNetto()">
+
+        <label for="revenueNet" style="margin-top:10px">Nettoumsatz (automatisch)</label>
+        <input id="revenueNet" type="text" readonly>
+
+        <label for="prodCost" style="margin-top:10px">Herstellungskosten pro Bestellung (€)</label>
+        <input id="prodCost" type="number" step="0.01" value="20" oninput="updateNetto()">
+
+        <label for="shipCost" style="margin-top:10px">Versand & Handling pro Bestellung (€)</label>
+        <input id="shipCost" type="number" step="0.01" value="10" oninput="updateNetto()">
+
+        <p class="small" id="netInfo"></p>
       </div>
+
+      <!-- rechts: Szenario -->
       <div>
-        <label>Netto (automatisch berechnet)</label>
-        <input type="text" id="netto" readonly>
-      </div>
-      <div>
-        <label>Produktionskosten (€)</label>
-        <input type="number" id="produktion" value="20" step="0.01">
-      </div>
-      <div>
-        <label>Handling & Versand (€)</label>
-        <input type="number" id="handling" value="10" step="0.01">
-      </div>
-      <div>
-        <label>Geplanter ROAS</label>
-        <input type="number" id="roas" value="3" step="0.1">
-      </div>
-      <div>
-        <label>Externe Fixkosten / Agenturkosten (€)</label>
-        <input type="number" id="fixkosten" value="1000" step="0.01">
+        <label for="fixedCost">Externe Fixkosten (Agentur, Tools) (€)</label>
+        <input id="fixedCost" type="number" step="1" value="1000">
+
+        <label for="roas" style="margin-top:10px">Ziel-ROAS (z. B. 3)</label>
+        <input id="roas" type="number" step="0.01" value="3">
+
+        <div style="margin-top:10px">
+          <button class="btn" onclick="onCalculate()">Berechnen</button>
+        </div>
       </div>
     </div>
 
-    <button onclick="calculate()">Berechnen</button>
+    <div class="results" id="resultsSection" aria-live="polite" hidden>
+      <div class="result-grid">
+        <div class="card-result">
+          <div class="muted">Profit pro Werbe-Euro</div>
+          <h2 id="profitPerEuro">–</h2>
+        </div>
+        <div class="card-result">
+          <div class="muted">Benötigtes Werbebudget (Break-Even)</div>
+          <h2 id="neededBudget">–</h2>
+        </div>
+      </div>
 
-    <div class="results" id="results"></div>
+      <div id="warning" role="status" aria-atomic="true"></div>
 
-    <div class="chart-container">
-      <canvas id="budgetChart"></canvas>
+      <div class="chart-wrap">
+        <canvas id="budgetChart" aria-label="Gewinn in Abhängigkeit des Marketingbudgets" role="img"></canvas>
+        <div class="small" style="margin-top:8px">Chart interaktiv: <strong>Zoomen</strong> mit Mausrad, <strong>Pannen</strong> durch Ziehen. Doppelklick setzt Zoom zurück.</div>
+      </div>
     </div>
-  </div>
 
-  <script>
-    function formatNumber(num) {
-      return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    <footer>Tool entwickelt von <a href="https://www.purple-noon.de" target="_blank" rel="noopener">Purple Noon</a></footer>
+  </main>
 
-    function calculate() {
-      const brutto = parseFloat(document.getElementById("brutto").value);
-      const produktion = parseFloat(document.getElementById("produktion").value);
-      const handling = parseFloat(document.getElementById("handling").value);
-      const roas = parseFloat(document.getElementById("roas").value);
-      const fixkosten = parseFloat(document.getElementById("fixkosten").value);
+<script>
+/* register zoom plugin */
+Chart.register(ChartZoom);
 
-      const netto = brutto / 1.19;
-      const ertragProKunde = netto - produktion - handling;
-      const profitProWerbeEuro = (ertragProKunde / brutto) * roas - 1;
+/* helper deutsch format */
+function fmt(n, digits=2){
+  if (!isFinite(n)) return '–';
+  return n.toLocaleString('de-DE', {minimumFractionDigits: digits, maximumFractionDigits: digits});
+}
 
-      document.getElementById("netto").value = formatNumber(netto);
+/* update netto & ertrag text dynamically */
+function updateNetto(){
+  const gross = +document.getElementById('revenueGross').value || 0;
+  const prod = +document.getElementById('prodCost').value || 0;
+  const ship = +document.getElementById('shipCost').value || 0;
+  const vat = 1.19;
+  const net = gross / vat;
+  const ertrag = net - prod - ship;
+  document.getElementById('revenueNet').value = gross>0 ? fmt(net) + ' €' : '';
+  document.getElementById('netInfo').textContent = gross>0 ? 'Netto-Ertrag pro Bestellung: ' + fmt(ertrag) + ' €' : '';
+}
 
-      let resultsHTML = `
-        <strong>Ertrag pro Bestellung (netto):</strong> ${formatNumber(ertragProKunde)} €<br>
-        <strong>Profit pro Werbe-Euro:</strong> ${formatNumber(profitProWerbeEuro)} €<br>
-      `;
+/* main calculate */
+let chart = null;
+function onCalculate(){
+  const gross = +document.getElementById('revenueGross').value || 0;       // brutto per order
+  const prod = +document.getElementById('prodCost').value || 0;
+  const ship = +document.getElementById('shipCost').value || 0;
+  const fixed = +document.getElementById('fixedCost').value || 0;
+  const roas = +document.getElementById('roas').value || 0;
+  const vat = 1.19;
 
-      if (profitProWerbeEuro > 0) {
-        const benoetigtesBudget = fixkosten / profitProWerbeEuro;
-        resultsHTML += `<strong>Benötigtes Werbebudget (Break-Even):</strong> ${formatNumber(benoetigtesBudget)} €`;
-        drawChart(roas, ertragProKunde, brutto, benoetigtesBudget, fixkosten);
-      } else {
-        resultsHTML += `<span class="negative">Unter ROAS ${formatNumber((brutto / ertragProKunde).toFixed(2))} wird Verlust generiert.</span>`;
-        drawChart(roas, ertragProKunde, brutto, null, fixkosten);
-      }
+  // computed
+  const net = gross / vat;
+  const profitPerOrder = net - prod - ship; // netto ertrag per order
+  const profitPerEuro = (profitPerOrder / gross) * roas - 1; // deine exakte formel
 
-      document.getElementById("results").innerHTML = resultsHTML;
-    }
+  // show results section
+  const resultsSection = document.getElementById('resultsSection');
+  resultsSection.hidden = false;
 
-    let chart;
+  // show profit per euro
+  document.getElementById('profitPerEuro').textContent = fmt(profitPerEuro, 3);
 
-    function drawChart(roas, ertragProKunde, brutto, breakEvenBudget, fixkosten) {
-      const ctx = document.getElementById('budgetChart').getContext('2d');
-      const budgets = Array.from({ length: 20 }, (_, i) => i * 500);
-      const gewinne = budgets.map(b => (b * ((ertragProKunde / brutto) * roas - 1)) - fixkosten);
+  // determine needed budget or dash
+  let neededBudget = null;
+  const warningEl = document.getElementById('warning');
+  if (profitPerEuro <= 0 || !isFinite(profitPerEuro)) {
+    neededBudget = null;
+    const breakEvenRoas = profitPerOrder>0 ? (gross / profitPerOrder) : Infinity;
+    warningEl.innerHTML = `Unter einem ROAS von <strong>${fmt(breakEvenRoas,2).replace('.',',')}</strong> entsteht Verlust.`;
+    document.getElementById('neededBudget').textContent = '–';
+  } else {
+    neededBudget = fixed / profitPerEuro;
+    document.getElementById('neededBudget').textContent = fmt(neededBudget) + ' €';
+    warningEl.innerHTML = '';
+  }
 
-      if (chart) chart.destroy();
+  // Always draw chart (even if negative)
+  drawBudgetChart({
+    gross,
+    profitPerOrder,
+    profitPerEuro,
+    fixed,
+    neededBudget
+  });
+}
 
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: budgets,
-          datasets: [{
-            label: 'Gewinn bei gegebenem Budget (€)',
-            data: gewinne,
-            borderColor: '#2563eb',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.3,
-            pointRadius: 0
-          }]
+/* draw chart with pan & zoom on Y and 500er x ticks, 0-line centered initially */
+function drawBudgetChart({gross, profitPerOrder, profitPerEuro, fixed, neededBudget}) {
+  const ctx = document.getElementById('budgetChart').getContext('2d');
+
+  // choose max budget range: if neededBudget exists use 1.5x, else show reasonable window (fixed*10)
+  const maxBudget = neededBudget ? Math.max(neededBudget * 1.5, 5000) : Math.max(fixed * 10, 5000);
+  const step = 500;
+  const budgets = [];
+  for (let b = 0; b <= maxBudget; b += step) budgets.push(Math.round(b));
+
+  // compute profits
+  const profits = budgets.map(b => b * profitPerEuro - fixed);
+
+  // compute symmetric y-range to have 0 in middle initially
+  const yMaxAbs = Math.max(Math.abs(Math.min(...profits)), Math.abs(Math.max(...profits)), 100);
+  const suggestedMin = -yMaxAbs;
+  const suggestedMax = yMaxAbs;
+
+  // destroy old chart
+  if (chart) {
+    try { chart.destroy(); } catch(e) {}
+  }
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: budgets.map(b => b.toLocaleString('de-DE')),
+      datasets: [{
+        label: 'Gewinn (€)',
+        data: profits,
+        borderColor: '#0071e3',
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 0,
+        tension: 0.2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `Gewinn: ${fmt(ctx.parsed.y)} €`
+          }
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-              callbacks: {
-                label: ctx => `Gewinn: ${formatNumber(ctx.parsed.y)} €`
-              }
-            },
-            legend: { display: false }
+        zoom: {
+          zoom: {
+            wheel: { enabled: true, modifierKey: null }, // wheel to zoom
+            pinch: { enabled: true },
+            mode: 'y'
           },
-          scales: {
-            y: {
-              beginAtZero: false,
-              grid: { color: '#e2e8f0' },
-              title: { display: true, text: 'Gewinn (€)' }
-            },
-            x: {
-              grid: { color: '#e2e8f0' },
-              title: { display: true, text: 'Marketing-Budget (€)' }
-            }
+          pan: {
+            enabled: true,
+            mode: 'y',
+            modifierKey: null
           }
         }
-      });
-    }
-  </script>
+      },
+      scales: {
+        x: {
+          title: { display:true, text: 'Marketingbudget (€)' },
+          ticks: { stepSize: step }
+        },
+        y: {
+          title: { display:true, text: 'Gewinn (€)' },
+          suggestedMin: suggestedMin,
+          suggestedMax: suggestedMax,
+          grid: {
+            color: (ctx) => {
+              // highlight zero line
+              return ctx.tick.value === 0 ? '#d70015' : '#e6eef6';
+            },
+            lineWidth: (ctx) => ctx.tick.value === 0 ? 2 : 1
+          },
+          ticks: {
+            callback: (val) => Number(val).toLocaleString('de-DE')
+          }
+        }
+      },
+      onClick: () => {
+        /* double click handled by plugin? if needed reset zoom manually */
+      }
+    },
+    plugins: [{
+      id: 'centerZeroLineMarker',
+      afterDraw: (chartInstance) => {
+        // nothing extra — grid styling handles zero line highlighting
+      }
+    }]
+  });
+
+  // draw vertical line for break-even budget if exists
+  if (neededBudget) {
+    // find nearest index
+    const idx = Math.round(neededBudget / 500);
+    const xPos = chart.scales.x.getPixelForValue(idx);
+    // plugin to draw vertical dashed line:
+    chart.options.plugins.breakLine = chart.options.plugins.breakLine || {};
+    const vertical = {
+      id: 'breakLine',
+      afterDraw: (c) => {
+        const meta = c.getDatasetMeta(0);
+        const x = chart.scales.x.getPixelForValue(budgets[idx]);
+        const top = chart.scales.y.top, bottom = chart.scales.y.bottom;
+        const ctx2 = c.ctx;
+        ctx2.save();
+        ctx2.setLineDash([6,6]);
+        ctx2.strokeStyle = '#666';
+        ctx2.lineWidth = 1.2;
+        ctx2.beginPath();
+        ctx2.moveTo(x, top);
+        ctx2.lineTo(x, bottom);
+        ctx2.stroke();
+        ctx2.restore();
+      }
+    };
+    chart.config.plugins.push(vertical);
+    chart.update();
+  }
+}
+
+/* init */
+updateNetto();
+</script>
 </body>
 </html>
