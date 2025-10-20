@@ -217,22 +217,33 @@ function calcBudget() {
 
   let neededBudget = 0;
   let breakEvenRoas = null;
+  let maxBudget = 10000; // Standardanzeige
 
-  if (profitPerEuro <= 0) {
-    document.getElementById("neededBudget").innerText = "–";
+  if (fixed <= 100) {
+    if (profitPerEuro > 0) {
+      warning.innerText = "Du machst ab dem ersten Euro Gewinn!";
+    } else {
+      warning.innerText = "Auch bei sehr geringen Fixkosten machst du aktuell Verlust.";
+    }
+    neededBudget = 0;
+  } else if (profitPerEuro <= 0) {
     breakEvenRoas = gross / profitPerOrder;
     warning.innerText = "Unter einem ROAS von " + breakEvenRoas.toFixed(2).replace('.', ',') + " wird Verlust generiert.";
   } else {
     neededBudget = fixed / profitPerEuro;
     document.getElementById("neededBudget").innerText = formatNumber(neededBudget) + " €";
     warning.innerText = "";
+    maxBudget = neededBudget * 2;
+  }
+
+  // Bei negativem ROAS negatives Budget anzeigen
+  if (profitPerEuro < 0) {
+    document.getElementById("neededBudget").innerText = "-";
   }
 
   // Diagrammdaten
   const budgets = [];
   const profits = [];
-  const maxBudget = profitPerEuro > 0 ? neededBudget * 2 : 10000;
-
   for (let i = 0; i <= maxBudget; i += 500) {
     const profit = i * profitPerEuro - fixed;
     budgets.push(i);
@@ -266,26 +277,18 @@ function drawChart(budgets, profits) {
       scales: {
         x: {
           title: { display: true, text: 'Marketingbudget (€)' },
-          ticks: { stepSize: 500 }
+          min: 0,
+          max: Math.max(...budgets)
         },
         y: {
           title: { display: true, text: 'Gewinn (€)' },
-          min: Math.min(...profits),
-          max: Math.max(...profits),
           grid: {
             color: ctx => ctx.tick.value === 0 ? '#d70015' : '#ddd',
             lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1
           }
         }
       },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => 'Gewinn: ' + formatNumber(ctx.parsed.y) + ' €'
-          }
-        }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 }
