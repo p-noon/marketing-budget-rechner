@@ -11,7 +11,7 @@ body {
   padding: 20px;
 }
 .budget-calculator {
-  max-width: 900px;
+  max-width: 950px;
   margin: 40px auto;
   background: #fff;
   border-radius: 24px;
@@ -33,7 +33,6 @@ h2 {
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
-  align-items: flex-start;
 }
 .column {
   flex: 1;
@@ -46,7 +45,7 @@ label {
   margin-bottom: 6px;
   margin-top: 12px;
 }
-input[type="number"], input[type="range"] {
+input {
   padding: 10px;
   border: 1px solid #d2d2d7;
   border-radius: 10px;
@@ -61,10 +60,6 @@ input:focus {
   border-color: #0071e3;
   background: white;
   box-shadow: 0 0 0 2px rgba(0,113,227,0.1);
-}
-.input-blue {
-  border-color: #0071e3;
-  box-shadow: 0 0 0 2px rgba(0,113,227,0.15);
 }
 .button-main {
   margin-top: 30px;
@@ -85,7 +80,6 @@ input:focus {
 .results {
   margin-top: 30px;
   text-align: center;
-  animation: fadeIn 0.6s ease forwards;
   display: none;
 }
 .result-grid {
@@ -97,7 +91,6 @@ input:focus {
   background: #f5f5f7;
   padding: 16px;
   border-radius: 16px;
-  transition: transform 0.3s;
 }
 .result-card.highlight {
   background: #e8f0fe;
@@ -107,15 +100,15 @@ input:focus {
   margin: 6px 0;
   font-size: 1.8rem;
 }
-.slider-container {
-  margin-top: 16px;
+canvas {
+  margin-top: 20px;
+  width: 100%;
+  height: 300px;
 }
-.slider-container label {
-  margin-bottom: 4px;
-}
-.slider-value {
+.warning {
+  color: #d70015;
   font-weight: 600;
-  margin-left: 8px;
+  margin-top: 10px;
 }
 footer {
   text-align: center;
@@ -127,45 +120,30 @@ footer a {
   color: #0071e3;
   text-decoration: none;
 }
-@keyframes fadeIn {
-  from {opacity:0;}
-  to {opacity:1;}
-}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="budget-calculator">
   <h2>Marketing-Budget-Rechner</h2>
-  <p class="subtitle">Berechne das benötigte Werbebudget bei gegebenem ROAS und Fixkosten.</p>
+  <p class="subtitle">Ermittle, wie viel Budget du bei gegebenem ROAS und Fixkosten brauchst – und ob dein Setup überhaupt rentabel ist.</p>
 
   <div class="input-grid">
     <div class="column">
       <h3>Grunddaten</h3>
       <label>Bruttoumsatz pro Bestellung (in EUR)</label>
-      <input id="revenueGross" type="number" placeholder="z. B. 60" oninput="updateNetto()">
-      <label>Nettoumsatz (automatisch)</label>
-      <input id="revenueNet" type="number" readonly>
+      <input id="revenueGross" type="number" placeholder="z. B. 60" step="0.01">
       <label>Variable Kosten pro Bestellung (Produktion + Versand, in EUR)</label>
-      <input id="variableCost" type="number" placeholder="z. B. 30" oninput="updateProfit()">
-
-      <div class="field-live">
-        <label>Profit pro Bestellung</label>
-        <h2 id="profitPerOrder">–</h2>
-      </div>
+      <input id="variableCost" type="number" placeholder="z. B. 30" step="0.01">
     </div>
 
     <div class="column">
       <h3>Szenario</h3>
-      <label>ROAS</label>
-      <input id="roas" type="number" placeholder="z. B. 3" oninput="updateProfit()">
       <label>Fixkosten extern (z. B. Agentur, Tools) in EUR</label>
-      <input id="fixedCost" type="number" placeholder="z. B. 1000" oninput="updateProfit()">
-
-      <div class="slider-container">
-        <label>ROAS interaktiv: <span id="roasValue" class="slider-value">3</span></label>
-        <input id="roasSlider" type="range" min="0.1" max="10" step="0.1" value="3" oninput="syncROAS(this.value)">
-      </div>
+      <input id="fixedCost" type="number" placeholder="z. B. 1000" step="1">
+      <label>ROAS</label>
+      <input id="roas" type="number" placeholder="z. B. 3" step="0.1">
     </div>
   </div>
 
@@ -182,6 +160,9 @@ footer a {
         <h1 id="neededBudget">–</h1>
       </div>
     </div>
+
+    <p id="warning" class="warning"></p>
+    <canvas id="budgetChart"></canvas>
   </div>
 
   <footer>
@@ -190,51 +171,78 @@ footer a {
 </div>
 
 <script>
-function updateNetto() {
-  const gross = +document.getElementById("revenueGross").value || 0;
-  const net = gross / 1.19;
-  document.getElementById("revenueNet").value = net.toFixed(2);
-  updateProfit();
-}
+let chart;
 
-function updateProfit() {
-  const revenueNet = +document.getElementById("revenueNet").value || 0;
-  const variable = +document.getElementById("variableCost").value || 0;
-  const profitPerOrder = revenueNet - variable;
-  document.getElementById("profitPerOrder").innerText = profitPerOrder.toFixed(2) + " €";
-  calcBudget();
-}
-
-function syncROAS(value) {
-  document.getElementById("roas").value = value;
-  document.getElementById("roasValue").innerText = value;
-  calcBudget();
+function formatNumber(num) {
+  return num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function calcBudget() {
   const revenueGross = +document.getElementById("revenueGross").value || 0;
-  const revenueNet = +document.getElementById("revenueNet").value || 0;
   const variable = +document.getElementById("variableCost").value || 0;
   const roas = +document.getElementById("roas").value || 0;
   const fixed = +document.getElementById("fixedCost").value || 0;
 
+  const revenueNet = revenueGross / 1.19;
   const profitPerOrder = revenueNet - variable;
   const profitPerEuro = (profitPerOrder / revenueGross) * roas - 1;
 
-  let neededBudget;
-  if(profitPerEuro <= 0) {
-    neededBudget = "nie rentabel";
-  } else {
-    neededBudget = (fixed / profitPerEuro).toFixed(0) + " €";
+  const warningEl = document.getElementById("warning");
+  const resultEl = document.getElementById("results");
+  resultEl.style.display = "block";
+
+  if (profitPerEuro <= 0) {
+    const breakEvenRoas = revenueGross / profitPerOrder;
+    document.getElementById("profitPerEuro").innerText = formatNumber(profitPerEuro);
+    document.getElementById("neededBudget").innerText = "–";
+    warningEl.innerText = "Unter einem ROAS von " + breakEvenRoas.toFixed(2).replace('.', ',') + " wird Verlust generiert.";
+    drawChart([], []);
+    return;
   }
 
-  document.getElementById("profitPerEuro").innerText = profitPerEuro.toFixed(3);
-  document.getElementById("neededBudget").innerText = neededBudget;
-  document.getElementById("results").style.display = "grid";
+  const neededBudget = fixed / profitPerEuro;
+  document.getElementById("profitPerEuro").innerText = formatNumber(profitPerEuro);
+  document.getElementById("neededBudget").innerText = formatNumber(neededBudget) + " €";
+  warningEl.innerText = "";
+
+  // Chart-Daten generieren
+  const budgets = [];
+  const profits = [];
+  for (let i = 0; i <= neededBudget * 1.5; i += neededBudget / 20) {
+    const profit = i * profitPerEuro - fixed;
+    budgets.push(i);
+    profits.push(profit);
+  }
+
+  drawChart(budgets, profits);
 }
 
-// initial
-updateNetto();
+function drawChart(budgets, profits) {
+  const ctx = document.getElementById('budgetChart').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: budgets.map(b => b.toLocaleString('de-DE', { maximumFractionDigits: 0 })),
+      datasets: [{
+        label: 'Gewinn',
+        data: profits,
+        borderColor: '#0071e3',
+        backgroundColor: 'rgba(0,113,227,0.1)',
+        fill: true,
+        tension: 0.2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: 'Marketingbudget (€)' } },
+        y: { title: { display: true, text: 'Gewinn (€)' } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
 </script>
 
 </body>
