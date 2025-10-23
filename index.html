@@ -131,7 +131,7 @@ canvas {
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:400px !important; }
+  canvas { height:600px !important; }
   .result-grid {
     grid-template-columns:1fr;
     margin-bottom:40px;
@@ -306,6 +306,31 @@ function calcBudget(){
 
   const ctx=document.getElementById('budgetChart').getContext('2d');
   if(chart) chart.destroy();
+
+  // Custom Plugin für vertikale Zahlen
+  const verticalLabelsPlugin = {
+    id: 'verticalLabels',
+    afterDraw(chart, args, opts) {
+      const {ctx, scales:{y}} = chart;
+      ctx.save();
+      ctx.font = (window.innerWidth < 600 ? '9px' : '11px') + ' sans-serif';
+      ctx.fillStyle = '#777';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const ticks = y.ticks;
+      ticks.forEach(t => {
+        const yPos = y.getPixelForValue(t.value);
+        ctx.save();
+        ctx.translate(y.left - 8, yPos);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(fmt(t.value, 0), 0, 0);
+        ctx.restore();
+      });
+      ctx.restore();
+    }
+  };
+
   chart=new Chart(ctx,{
     type:'line',
     data:{
@@ -324,9 +349,7 @@ function calcBudget(){
       maintainAspectRatio:false,
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
-      layout:{
-        padding:{ left: window.innerWidth>600 ? 0 : 10 }
-      },
+      layout:{padding:{left:20}},
       scales:{
         x:{
           title:{display:true,text:'Marketingbudget (€)'},
@@ -337,17 +360,12 @@ function calcBudget(){
           }
         },
         y:{
-          ticks:{
-            display:true,
-            color:'#777',
-            font:{size: window.innerWidth<600?9:11},
-            maxTicksLimit:window.innerWidth<600?4:6,
-            callback:(val)=>fmt(val,0)
-          },
-          grid:{color:'rgba(0,0,0,0.05)'}
+          display:false,
+          ticks:{maxTicksLimit:5}
         }
       }
-    }
+    },
+    plugins:[verticalLabelsPlugin]
   });
 
   document.getElementById("results").style.display="block";
