@@ -91,7 +91,7 @@ input:focus {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
-  margin-bottom:20px;
+  margin-bottom:30px; /* etwas mehr Abstand zum Chart */
 }
 .result-card {
   background:#f5f5f7;
@@ -114,11 +114,12 @@ canvas {
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:280px; }
+  canvas { height:400px; } /* höherer Chart */
 
   /* Kacheln untereinander */
   .result-grid {
     grid-template-columns:1fr;
+    margin-bottom:40px; /* mehr Abstand zu Chart */
   }
 
   /* Chart Layout: Y-Titel oben, Ticks ausgeblendet */
@@ -127,8 +128,8 @@ canvas {
   }
   .chart-label-mobile {
     text-align: center;
-    margin-bottom: 4px;
-    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-size: 1rem;
     font-weight: 500;
     color: #333;
   }
@@ -330,7 +331,7 @@ function calcBudget(){
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
       layout:{
-        padding:{ left: window.innerWidth>600 ? 0 : 10 } // etwas Abstand links
+        padding:{ left: window.innerWidth>600 ? 0 : 10 }
       },
       scales:{
         x:{
