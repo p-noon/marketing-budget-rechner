@@ -91,7 +91,7 @@ input:focus {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
-  margin-bottom:30px; /* etwas mehr Abstand zum Chart */
+  margin-bottom:30px; /* mehr Abstand zum Chart */
 }
 .result-card {
   background:#f5f5f7;
@@ -106,6 +106,8 @@ input:focus {
   margin:6px 0;
   font-size:1.8rem;
 }
+
+/* Chart */
 canvas {
   margin-top:20px;
   width:100%;
@@ -114,28 +116,24 @@ canvas {
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:600px; } /* höherer Chart */
-
-  /* Kacheln untereinander */
+  canvas { height:600px !important; } /* wirklich hoher Chart */
   .result-grid {
     grid-template-columns:1fr;
-    margin-bottom:40px; /* mehr Abstand zu Chart */
+    margin-bottom:40px;
   }
-
-  /* Chart Layout: Y-Titel oben, Ticks ausgeblendet */
   .chart-container {
     position: relative;
   }
   .chart-label-mobile {
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: 1rem;
     font-weight: 500;
     color: #333;
   }
   .y-title-mobile {
     position: absolute;
-    top: -22px;
+    top: -20px;
     left: 0;
     right: 0;
     text-align: center;
@@ -214,10 +212,8 @@ footer a:hover {
       <h3>Grunddaten</h3>
       <label>Bruttoumsatz pro Bestellung (in €)</label>
       <input id="revenueGross" type="text" placeholder="z. B. 60" oninput="updateNetto()">
-
       <label>Netto-Umsatz (berechnet)</label>
       <input id="revenueNet" type="text" readonly style="background:#f0f0f0;">
-
       <label>Variable Kosten (Produktion + Versand, in €)</label>
       <input id="variableCost" type="text" placeholder="z. B. 30" oninput="updateNetto()">
       <div id="netProfitInfo" class="info"></div>
@@ -227,7 +223,6 @@ footer a:hover {
       <h3>Szenario</h3>
       <label>Fixkosten extern (z. B. Agentur, Tools, in €)</label>
       <input id="fixedCost" type="text" placeholder="z. B. 1000">
-
       <label>ROAS</label>
       <input id="roas" type="text" placeholder="z. B. 3">
     </div>
@@ -247,7 +242,6 @@ footer a:hover {
       </div>
     </div>
 
-    <!-- Chart mit mobiler Beschriftung -->
     <div class="chart-container">
       <div class="chart-label-mobile">📈 Gewinnentwicklung</div>
       <div class="y-title-mobile">Gewinn (€)</div>
@@ -328,6 +322,7 @@ function calcBudget(){
     },
     options:{
       responsive:true,
+      maintainAspectRatio:false, /* ganz wichtig für feste Höhe */
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
       layout:{
@@ -378,4 +373,3 @@ updateNetto();
 </script>
 </body>
 </html>
-
