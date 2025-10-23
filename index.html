@@ -109,7 +109,6 @@ input:focus {
 
 /* Chartbereich */
 .chart-container {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -131,15 +130,9 @@ canvas {
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:600px !important; }
-  .result-grid {
-    grid-template-columns:1fr;
-    margin-bottom:40px;
-  }
-  .y-axis-label {
-    font-size: 0.7rem;
-    margin-right: 2px;
-  }
+  canvas { height:400px !important; }
+  .result-grid { grid-template-columns:1fr; margin-bottom:40px; }
+  .y-axis-label { font-size: 0.7rem; margin-right: 2px; }
 }
 
 .warning {
@@ -197,9 +190,7 @@ footer a:hover {
   margin-top:12px;
   cursor:pointer;
 }
-.close-btn:hover {
-  background:#0a84ff;
-}
+.close-btn:hover { background:#0a84ff; }
 </style>
 </head>
 <body>
@@ -288,43 +279,58 @@ function calcBudget(){
   const variable=parseNum(document.getElementById("variableCost").value);
   const roas=parseNum(document.getElementById("roas").value);
   const fixed=parseNum(document.getElementById("fixedCost").value);
+
+  if(gross<=0 || roas<=0) { 
+    alert("Bitte Bruttoumsatz und ROAS korrekt eingeben."); 
+    return; 
+  }
+
   const net=gross/1.19;
-  const profitPerOrder=net-variable;
-  const profitPerEuro=(profitPerOrder/gross)*roas;
+  const y = (net-variable)/gross;          // Nettoertrag vom Brutto
+  const z = roas*y-1;                      // Gewinn pro Werbe-Euro
+  const neededBudget = z>0 ? fixed/z : 0;
 
-  document.getElementById("profitPerEuro").innerText=fmt(profitPerEuro);
-  const neededBudget=profitPerEuro>0?fixed/profitPerEuro:0;
-  document.getElementById("neededBudget").innerText=profitPerEuro>0?fmt(neededBudget)+" €":"–";
+  document.getElementById("profitPerEuro").innerText = z>0 ? fmt(z) : "–";
+  document.getElementById("neededBudget").innerText = z>0 ? fmt(neededBudget)+" €" : "–";
 
+  // Warnmeldung
+  let message = "";
+  if(z <= 0){
+    message = "Aktuell ist das Modell bei gegebenem ROAS nicht profitabel.";
+  } else if(fixed > 0){
+    message = `Break-Even bei ${fmt(neededBudget)} € Werbebudget erreicht.`;
+  } else {
+    message = "Ab dem ersten Werbe-Euro wird Gewinn gemacht!";
+  }
+  document.getElementById("warning").innerText = message;
+
+  // Graphdaten
   const budgets=[];
   const profits=[];
-  const maxBudget=Math.max(neededBudget*2,5000);
+  const maxBudget = Math.max(neededBudget*2,5000);
   for(let i=0;i<=maxBudget;i+=500){
-    profits.push(i*profitPerEuro-fixed);
+    profits.push(i*z - fixed);
     budgets.push(i);
   }
 
   const ctx=document.getElementById('budgetChart').getContext('2d');
   if(chart) chart.destroy();
 
-  // Custom Plugin für vertikale Zahlen
   const verticalLabelsPlugin = {
     id: 'verticalLabels',
-    afterDraw(chart, args, opts) {
+    afterDraw(chart){
       const {ctx, scales:{y}} = chart;
       ctx.save();
       ctx.font = (window.innerWidth < 600 ? '9px' : '11px') + ' sans-serif';
       ctx.fillStyle = '#777';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-
-      const ticks = y.ticks;
-      ticks.forEach(t => {
+      y.ticks.forEach(t => {
         const yPos = y.getPixelForValue(t.value);
         ctx.save();
         ctx.translate(y.left - 8, yPos);
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(fmt(t.value, 0), 0, 0);
+        ctx.fillText(fmt(t.value,0),0,0);
         ctx.restore();
       });
       ctx.restore();
@@ -334,7 +340,7 @@ function calcBudget(){
   chart=new Chart(ctx,{
     type:'line',
     data:{
-      labels:budgets.map(b=>fmt(b)),
+      labels:budgets.map(b=>b>0?fmt(b):""),  // 0 ausblenden
       datasets:[{
         label:'Gewinn (€)',
         data:profits,
@@ -351,34 +357,22 @@ function calcBudget(){
       plugins:{legend:{display:false}},
       layout:{padding:{left:20}},
       scales:{
-  x:{
-    title:{display:true,text:'Marketingbudget (€)'},
-    ticks:{
-      maxRotation:0,
-      autoSkip:true,
-      maxTicksLimit:window.innerWidth<600?4:8,
-      font: {
-        size: window.innerWidth < 600 ? 10 : 12  // Schriftgröße x-Achse kleiner
-      },
-      callback: function(value, index, ticks) {
-        const label = this.getLabelForValue(value);
-        // 0 ausblenden
-        return label === "0" ? "" : label;
+        x:{
+          title:{display:true,text:'Marketingbudget (€)'},
+          ticks:{
+            maxRotation:0,
+            autoSkip:true,
+            maxTicksLimit:window.innerWidth<600?4:8,
+            font:{size:window.innerWidth<600?10:12}
+          }
+        },
+        y:{display:false,ticks:{maxTicksLimit:5}}
       }
-    }
-  },
-  y:{
-    display:false,
-    ticks:{maxTicksLimit:5}
-  }
-}
-
     },
     plugins:[verticalLabelsPlugin]
   });
 
   document.getElementById("results").style.display="block";
-  document.getElementById("warning").innerText=profitPerEuro<=0?"Aktuell Verlust bei gegebenem ROAS":"";
 }
 
 ['revenueGross','variableCost','fixedCost','roas'].forEach(id=>{
@@ -397,4 +391,3 @@ updateNetto();
 </script>
 </body>
 </html>
-
