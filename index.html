@@ -82,6 +82,12 @@ input:focus {
 .button-main:hover {
   background:#0a84ff;
 }
+.warning {
+  font-size:0.95rem;
+  font-weight:600;
+  margin-top:16px;
+  text-align:center;
+}
 .results {
   margin-top:30px;
   text-align:center;
@@ -109,10 +115,11 @@ input:focus {
 
 /* Chartbereich */
 .chart-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   margin-top: 40px;
+  overflow: visible;
 }
 .y-axis-label {
   writing-mode: vertical-rl;
@@ -125,34 +132,27 @@ input:focus {
 canvas {
   width:100%;
   height:400px;
-  flex: 1;
+  flex:1;
 }
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
   canvas { height:400px !important; }
   .result-grid { grid-template-columns:1fr; margin-bottom:40px; }
-  .y-axis-label { font-size: 0.7rem; margin-right: 2px; }
+  .y-axis-label { font-size:0.7rem; margin-right:2px; }
+  .chart-container { margin-top:30px; }
+  .warning { font-size:0.9rem; }
 }
 
-.warning {
-  color:#d70015;
-  font-weight:600;
-  margin-top:10px;
-}
 footer {
   text-align:center;
   margin-top:20px;
   font-size:13px;
   color:#999;
 }
-footer a {
-  color:#0071e3;
-  text-decoration:none;
-}
-footer a:hover {
-  text-decoration:underline;
-}
+footer a { color:#0071e3; text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+
 .overlay {
   position: fixed;
   top: 0;
@@ -220,6 +220,7 @@ footer a:hover {
   </div>
 
   <button class="button-main" onclick="calcBudget()">Berechnen</button>
+  <p id="warning" class="warning"></p>
 
   <div class="results" id="results">
     <div class="result-grid">
@@ -237,8 +238,6 @@ footer a:hover {
       <div class="y-axis-label">Gewinn (€)</div>
       <canvas id="budgetChart"></canvas>
     </div>
-
-    <p id="warning" class="warning"></p>
   </div>
 
   <footer>
@@ -286,30 +285,31 @@ function calcBudget(){
   }
 
   const net=gross/1.19;
-  const y = (net-variable)/gross;          // Nettoertrag vom Brutto
-  const z = roas*y-1;                      // Gewinn pro Werbe-Euro
+  const y=(net-variable)/gross;   // Nettoertrag vom Brutto
+  const z=roas*y-1;               // Gewinn pro Werbe-Euro
   const neededBudget = z>0 ? fixed/z : 0;
 
-  document.getElementById("profitPerEuro").innerText = z>0 ? fmt(z) : "–";
+  document.getElementById("profitPerEuro").innerText = fmt(z);
   document.getElementById("neededBudget").innerText = z>0 ? fmt(neededBudget)+" €" : "–";
 
-  // Warnmeldung
-  let message = "";
+  const warningEl = document.getElementById("warning");
   if(z <= 0){
-    message = "Aktuell ist das Modell bei gegebenem ROAS nicht profitabel.";
-  } else if(fixed > 0){
-    message = `Break-Even bei ${fmt(neededBudget)} € Werbebudget erreicht.`;
+    warningEl.innerText = "Aktuell ist das Modell bei gegebenem ROAS nicht profitabel.";
+    warningEl.style.color = "#d70015"; // rot
+  } else if(fixed>0){
+    warningEl.innerText = `Break-Even bei ${fmt(neededBudget)} € Werbebudget erreicht.`;
+    warningEl.style.color = "#0071e3"; // blau
   } else {
-    message = "Ab dem ersten Werbe-Euro wird Gewinn gemacht!";
+    warningEl.innerText = "Ab dem ersten Werbe-Euro wird Gewinn gemacht!";
+    warningEl.style.color = "#0071e3"; // blau
   }
-  document.getElementById("warning").innerText = message;
 
-  // Graphdaten
+  // Chart generieren
   const budgets=[];
   const profits=[];
-  const maxBudget = Math.max(neededBudget*2,5000);
+  const maxBudget=Math.max(neededBudget*2,5000);
   for(let i=0;i<=maxBudget;i+=500){
-    profits.push(i*z - fixed);
+    profits.push(i*z-fixed);
     budgets.push(i);
   }
 
@@ -318,19 +318,21 @@ function calcBudget(){
 
   const verticalLabelsPlugin = {
     id: 'verticalLabels',
-    afterDraw(chart){
+    afterDraw(chart, args, opts) {
       const {ctx, scales:{y}} = chart;
       ctx.save();
       ctx.font = (window.innerWidth < 600 ? '9px' : '11px') + ' sans-serif';
       ctx.fillStyle = '#777';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      y.ticks.forEach(t => {
+
+      const ticks = y.ticks;
+      ticks.forEach(t => {
         const yPos = y.getPixelForValue(t.value);
         ctx.save();
         ctx.translate(y.left - 8, yPos);
         ctx.rotate(-Math.PI / 2);
-        ctx.fillText(fmt(t.value,0),0,0);
+        ctx.fillText(fmt(t.value, 0), 0, 0);
         ctx.restore();
       });
       ctx.restore();
@@ -340,7 +342,7 @@ function calcBudget(){
   chart=new Chart(ctx,{
     type:'line',
     data:{
-      labels:budgets.map(b=>b>0?fmt(b):""),  // 0 ausblenden
+      labels:budgets.map(b=>fmt(b)),
       datasets:[{
         label:'Gewinn (€)',
         data:profits,
@@ -355,18 +357,18 @@ function calcBudget(){
       maintainAspectRatio:false,
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
-      layout:{padding:{left:20}},
+      layout:{padding:{right:10,top:10}},
       scales:{
-        x:{
-          title:{display:true,text:'Marketingbudget (€)'},
-          ticks:{
-            maxRotation:0,
-            autoSkip:true,
-            maxTicksLimit:window.innerWidth<600?4:8,
-            font:{size:window.innerWidth<600?10:12}
-          }
+        y:{
+          beginAtZero:true,
+          ticks:{padding:8}
         },
-        y:{display:false,ticks:{maxTicksLimit:5}}
+        x:{
+          ticks:{
+            callback: function(value){ return value==='0'?'':this.getLabelForValue(value); },
+            font:{size:window.innerWidth<600?9:11}
+          }
+        }
       }
     },
     plugins:[verticalLabelsPlugin]
@@ -375,19 +377,9 @@ function calcBudget(){
   document.getElementById("results").style.display="block";
 }
 
-['revenueGross','variableCost','fixedCost','roas'].forEach(id=>{
-  const el=document.getElementById(id);
-  el.addEventListener('blur',()=>{ el.value=fmt(parseNum(el.value)).replace(",00",""); });
-  el.addEventListener('input',updateNetto);
-});
-
-function closeOverlay(){ document.getElementById("overlay").style.display="none"; }
-document.getElementById("embedLink").addEventListener("click",e=>{
-  e.preventDefault();
-  document.getElementById("overlay").style.display="flex";
-});
-
-updateNetto();
+// Overlay
+document.getElementById("embedLink").onclick=function(e){e.preventDefault(); document.getElementById("overlay").style.display="flex";}
+function closeOverlay(){document.getElementById("overlay").style.display="none";}
 </script>
 </body>
 </html>
