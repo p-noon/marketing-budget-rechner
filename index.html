@@ -112,10 +112,16 @@ canvas {
   height:300px;
 }
 
-/* MOBILE-ANPASSUNG */
+/* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
   canvas { height:220px; }
-  /* Chart-Layout optimieren: Y-Achsentitel oben anzeigen */
+
+  /* Kacheln untereinander */
+  .result-grid {
+    grid-template-columns:1fr;
+  }
+
+  /* Chart Layout: Y-Titel oben, Ticks ausgeblendet */
   .chart-container {
     position: relative;
   }
@@ -234,7 +240,7 @@ footer a:hover {
       </div>
     </div>
 
-    <!-- Chart mit Y-Titel über dem Diagramm für Mobile -->
+    <!-- Chart mit Y-Titel über dem Diagramm -->
     <div class="chart-container">
       <div class="y-title-mobile">Gewinn (€)</div>
       <canvas id="budgetChart"></canvas>
@@ -289,7 +295,6 @@ function calcBudget(){
   const neededBudget=profitPerEuro>0?fixed/profitPerEuro:0;
   document.getElementById("neededBudget").innerText=profitPerEuro>0?fmt(neededBudget)+" €":"–";
 
-  // Chart-Daten
   const budgets=[];
   const profits=[];
   const maxBudget=Math.max(neededBudget*2,5000);
@@ -321,8 +326,14 @@ function calcBudget(){
         x:{title:{display:true,text:'Marketingbudget (€)'}},
         y:{
           title:{
-            display:window.innerWidth>600, // Nur Desktop
+            display:window.innerWidth>600,
             text:'Gewinn (€)'
+          },
+          ticks:{
+            display:window.innerWidth>600 // Skalen nur auf Desktop
+          },
+          grid:{
+            drawTicks:window.innerWidth>600
           }
         }
       }
@@ -333,14 +344,12 @@ function calcBudget(){
   document.getElementById("warning").innerText=profitPerEuro<=0?"Aktuell Verlust bei gegebenem ROAS":"";
 }
 
-// Input-Formatierung
 ['revenueGross','variableCost','fixedCost','roas'].forEach(id=>{
   const el=document.getElementById(id);
   el.addEventListener('blur',()=>{ el.value=fmt(parseNum(el.value)).replace(",00",""); });
   el.addEventListener('input',updateNetto);
 });
 
-// Overlay
 function closeOverlay(){ document.getElementById("overlay").style.display="none"; }
 document.getElementById("embedLink").addEventListener("click",e=>{
   e.preventDefault();
