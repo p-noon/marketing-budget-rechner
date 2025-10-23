@@ -19,32 +19,16 @@ body {
   padding: 32px;
   color: #1c1c1e;
 }
-h2 {
-  text-align:center;
-  font-size:1.8rem;
-  margin-bottom:6px;
-}
-.subtitle {
-  text-align:center;
-  color:#666;
-  margin-bottom:24px;
-}
+h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
+.subtitle { text-align:center; color:#666; margin-bottom:24px; }
+
 .input-grid {
   display: flex;
   gap:24px;
   flex-wrap:wrap;
 }
-.column {
-  flex:1;
-  min-width:280px;
-}
-label {
-  font-size:0.9rem;
-  color:#444;
-  display:block;
-  margin-bottom:6px;
-  margin-top:12px;
-}
+.column { flex:1; min-width:280px; }
+label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
 input {
   padding:10px;
   border:1px solid #d2d2d7;
@@ -61,11 +45,8 @@ input:focus {
   background:white;
   box-shadow:0 0 0 2px rgba(0,113,227,0.1);
 }
-.info {
-  font-size:0.85rem;
-  color: #0071e3;
-  margin-top:6px;
-}
+.info { font-size:0.85rem; color: #0071e3; margin-top:6px; }
+
 .button-main {
   margin-top:30px;
   width:100%;
@@ -79,20 +60,15 @@ input:focus {
   cursor:pointer;
   transition: background 0.2s;
 }
-.button-main:hover {
-  background:#0a84ff;
+.button-main:hover { background:#0a84ff; }
+
+.warning {
+  font-size:0.95rem;
+  margin-top:12px;
+  margin-bottom:12px;
 }
-.profit-message {
-  margin-top:20px;
-  font-size:1rem;
-  font-weight:600;
-  text-align:center;
-}
-.results {
-  margin-top:30px;
-  text-align:center;
-  display:none;
-}
+
+.results { margin-top:20px; text-align:center; display:none; }
 .result-grid {
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -104,14 +80,8 @@ input:focus {
   padding:16px;
   border-radius:16px;
 }
-.result-card.highlight {
-  background:#e8f0fe;
-  box-shadow:0 0 0 2px #0071e3 inset;
-}
-.result-card h1 {
-  margin:6px 0;
-  font-size:1.8rem;
-}
+.result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
+.result-card h1 { margin:6px 0; font-size:1.8rem; }
 
 /* Chartbereich */
 .chart-container {
@@ -129,42 +99,24 @@ input:focus {
   margin-right: 4px;
   flex-shrink: 0;
 }
-canvas {
-  width:100%;
-  height:400px; /* Standardhöhe Desktop */
-}
+canvas { width:100%; height:400px; flex:1; }
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
   canvas { height:600px !important; }
-  .result-grid {
-    grid-template-columns:1fr;
-    margin-bottom:40px;
-  }
-  .y-axis-label {
-    font-size: 0.7rem;
-    margin-right: 2px;
-  }
+  .result-grid { grid-template-columns:1fr; margin-bottom:40px; }
+  .y-axis-label { font-size: 0.7rem; margin-right: 2px; }
 }
 
-.warning {
-  color:#d70015;
-  font-weight:600;
-  margin-top:10px;
-}
 footer {
   text-align:center;
   margin-top:20px;
   font-size:13px;
   color:#999;
 }
-footer a {
-  color:#0071e3;
-  text-decoration:none;
-}
-footer a:hover {
-  text-decoration:underline;
-}
+footer a { color:#0071e3; text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+
 .overlay {
   position: fixed;
   top: 0;
@@ -202,9 +154,7 @@ footer a:hover {
   margin-top:12px;
   cursor:pointer;
 }
-.close-btn:hover {
-  background:#0a84ff;
-}
+.close-btn:hover { background:#0a84ff; }
 </style>
 </head>
 <body>
@@ -228,14 +178,13 @@ footer a:hover {
       <h3>Szenario</h3>
       <label>Fixkosten extern (z. B. Agentur, Tools, in €)</label>
       <input id="fixedCost" type="text" placeholder="z. B. 1.000">
-      <label>ROAS (fiktiv)</label>
+      <label>ROAS</label>
       <input id="roas" type="text" placeholder="z. B. 3">
     </div>
   </div>
 
   <button class="button-main" onclick="calcBudget()">Berechnen</button>
-
-  <div id="profitMessage" class="profit-message"></div>
+  <p id="warning" class="warning"></p>
 
   <div class="results" id="results">
     <div class="result-grid">
@@ -281,11 +230,6 @@ function fmt(num,dec=2){
   return isFinite(num)?num.toLocaleString("de-DE",{minimumFractionDigits:dec,maximumFractionDigits:dec}):"–";
 }
 
-function formatInputValue(el){
-  const val=parseNum(el.value);
-  el.value = val ? fmt(val,0) : "";
-}
-
 function updateNetto(){
   const gross=parseNum(document.getElementById("revenueGross").value);
   const variable=parseNum(document.getElementById("variableCost").value);
@@ -299,43 +243,66 @@ function calcBudget(){
   const gross=parseNum(document.getElementById("revenueGross").value);
   const variable=parseNum(document.getElementById("variableCost").value);
   const fixed=parseNum(document.getElementById("fixedCost").value);
+  const roas=parseNum(document.getElementById("roas").value);
 
-  const netErtragPerOrder = gross/1.19 - variable;
-  const y = netErtragPerOrder / gross;
-  const neededROAS = 1/y;
-  const profitPerEuro = (parseNum(document.getElementById("roas").value) * y) -1;
+  const net=gross/1.19;
+  const Y=(net-variable)/gross;
+  const minROAS=1/Y;
+  const Z=roas*Y-1;
 
-  document.getElementById("profitPerEuro").innerText = fmt(profitPerEuro,2);
+  document.getElementById("profitPerEuro").innerText = fmt(Z);
 
-  let neededBudget;
-  if(profitPerEuro>0){
-    neededBudget=fixed/profitPerEuro;
-  }else{
-    neededBudget=0;
-  }
-  document.getElementById("neededBudget").innerText = profitPerEuro>0 ? fmt(neededBudget,0)+" €" : "–";
+  const neededBudget=Z>0?fixed/Z:0;
+  document.getElementById("neededBudget").innerText = Z>0?fmt(neededBudget)+" €":"–";
 
-  const profitMsgEl = document.getElementById("profitMessage");
-  if(y<=0 || profitPerEuro<=0){
-    profitMsgEl.innerText = "Kein profitables Modell möglich bei gegebenem ROAS";
-    profitMsgEl.style.color = "red";
-  } else if(profitPerEuro>0 && fixed===0){
-    profitMsgEl.innerText = "Gewinn ab erstem Werbe-Euro möglich";
-    profitMsgEl.style.color = "blue";
+  // Warnmeldung
+  const warningEl=document.getElementById("warning");
+  if(Z<=0){
+    warningEl.style.color="red";
+    warningEl.innerText="ROAS erlaubt kein profitables Modell.";
+  } else if(neededBudget===0){
+    warningEl.style.color="blue";
+    warningEl.innerText="Ab dem ersten Euro wird Gewinn erzielt.";
   } else {
-    profitMsgEl.innerText = "";
+    warningEl.style.color="blue";
+    warningEl.innerText="";
   }
 
   const budgets=[];
   const profits=[];
   const maxBudget=Math.max(neededBudget*2,5000);
   for(let i=0;i<=maxBudget;i+=500){
+    profits.push(i*Z-fixed);
     budgets.push(i);
-    profits.push(i*profitPerEuro-fixed);
   }
 
   const ctx=document.getElementById('budgetChart').getContext('2d');
+
   if(chart) chart.destroy();
+
+  const verticalLabelsPlugin = {
+    id: 'verticalLabels',
+    afterDraw(chart, args, opts) {
+      const {ctx, scales:{y}} = chart;
+      ctx.save();
+      ctx.font = (window.innerWidth < 600 ? '9px' : '11px') + ' sans-serif';
+      ctx.fillStyle = '#777';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const ticks = y.ticks;
+      ticks.forEach(t => {
+        const yPos = y.getPixelForValue(t.value);
+        ctx.save();
+        ctx.translate(y.left - 8, yPos);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(fmt(t.value,0), 0, 0);
+        ctx.restore();
+      });
+      ctx.restore();
+    }
+  };
+
+  document.getElementById("results").style.display="block";
 
   chart=new Chart(ctx,{
     type:'line',
@@ -355,33 +322,22 @@ function calcBudget(){
       maintainAspectRatio:false,
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
+      layout:{padding:{left:20}},
       scales:{
-        x:{
-          title:{display:true,text:'Marketingbudget (€)'},
-          ticks:{
-            maxRotation:0,
-            autoSkip:true,
-            maxTicksLimit:window.innerWidth<600?4:8,
-            callback: function(val){return this.getLabelForValue(val);}
-          }
-        },
-        y:{
-          beginAtZero:true,
-          ticks:{
-            callback:function(val){return fmt(val,0);}
-          }
-        }
+        x:{ title:{display:true,text:'Marketingbudget (€)'},
+            ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:window.innerWidth<600?4:8,font:{size:window.innerWidth<600?10:12}} },
+        y:{ display:false, ticks:{maxTicksLimit:5} }
       }
-    }
+    },
+    plugins:[verticalLabelsPlugin]
   });
 
-  document.getElementById("results").style.display="block";
+  chart.resize();
 }
 
-// Tausenderpunkte beim Verlassen des Feldes
 ['revenueGross','variableCost','fixedCost','roas'].forEach(id=>{
   const el=document.getElementById(id);
-  el.addEventListener('blur',()=>formatInputValue(el));
+  el.addEventListener('blur',()=>{ el.value=fmt(parseNum(el.value)).replace(",00",""); });
   el.addEventListener('input',updateNetto);
 });
 
