@@ -351,22 +351,28 @@ function calcBudget(){
       plugins:{legend:{display:false}},
       layout:{padding:{left:20}},
       scales:{
-        x:{
-          title:{display:true,text:'Marketingbudget (€)'},
-          ticks:{
-            maxRotation:0,
-            autoSkip:true,
-            maxTicksLimit:window.innerWidth<600?4:8,
-            callback: function(value, index, ticks) {
-              return this.getLabelForValue(value) === "0" ? "" : this.getLabelForValue(value);
-            }
-          }
-        },
-        y:{
-          display:false,
-          ticks:{maxTicksLimit:5}
-        }
+  x:{
+    title:{display:true,text:'Marketingbudget (€)'},
+    ticks:{
+      maxRotation:0,
+      autoSkip:true,
+      maxTicksLimit:window.innerWidth<600?4:8,
+      font: {
+        size: window.innerWidth < 600 ? 10 : 12  // Schriftgröße x-Achse kleiner
+      },
+      callback: function(value, index, ticks) {
+        const label = this.getLabelForValue(value);
+        // 0 ausblenden
+        return label === "0" ? "" : label;
       }
+    }
+  },
+  y:{
+    display:false,
+    ticks:{maxTicksLimit:5}
+  }
+}
+
     },
     plugins:[verticalLabelsPlugin]
   });
@@ -391,3 +397,4 @@ updateNetto();
 </script>
 </body>
 </html>
+
