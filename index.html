@@ -113,6 +113,7 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 40px;
 }
 .y-axis-label {
   writing-mode: vertical-rl;
@@ -123,7 +124,6 @@ input:focus {
   flex-shrink: 0;
 }
 canvas {
-  margin-top:20px;
   width:100%;
   height:300px;
   flex: 1;
@@ -131,7 +131,7 @@ canvas {
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:500px !important; }
+  canvas { height:400px !important; }
   .result-grid {
     grid-template-columns:1fr;
     margin-bottom:40px;
@@ -337,7 +337,14 @@ function calcBudget(){
           }
         },
         y:{
-          display:false  /* keine Skala, nur vertikales Label links */
+          ticks:{
+            display:true,
+            color:'#777',
+            font:{size: window.innerWidth<600?9:11},
+            maxTicksLimit:window.innerWidth<600?4:6,
+            callback:(val)=>fmt(val,0)
+          },
+          grid:{color:'rgba(0,0,0,0.05)'}
         }
       }
     }
@@ -363,4 +370,3 @@ updateNetto();
 </script>
 </body>
 </html>
-
