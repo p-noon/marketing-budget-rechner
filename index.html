@@ -19,32 +19,11 @@ body {
   padding: 32px;
   color: #1c1c1e;
 }
-h2 {
-  text-align:center;
-  font-size:1.8rem;
-  margin-bottom:6px;
-}
-.subtitle {
-  text-align:center;
-  color:#666;
-  margin-bottom:24px;
-}
-.input-grid {
-  display: flex;
-  gap:24px;
-  flex-wrap:wrap;
-}
-.column {
-  flex:1;
-  min-width:280px;
-}
-label {
-  font-size:0.9rem;
-  color:#444;
-  display:block;
-  margin-bottom:6px;
-  margin-top:12px;
-}
+h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
+.subtitle { text-align:center; color:#666; margin-bottom:24px; }
+.input-grid { display: flex; gap:24px; flex-wrap:wrap; }
+.column { flex:1; min-width:280px; }
+label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
 input {
   padding:10px;
   border:1px solid #d2d2d7;
@@ -54,18 +33,10 @@ input {
   width:100%;
   box-sizing:border-box;
   transition: all 0.2s;
+  text-align:right;
 }
-input:focus {
-  outline:none;
-  border-color:#0071e3;
-  background:white;
-  box-shadow:0 0 0 2px rgba(0,113,227,0.1);
-}
-.info {
-  font-size:0.85rem;
-  color: #0071e3;
-  margin-top:6px;
-}
+input:focus { outline:none; border-color:#0071e3; background:white; box-shadow:0 0 0 2px rgba(0,113,227,0.1); }
+.info { font-size:0.85rem; color: #0071e3; margin-top:6px; }
 .button-main {
   margin-top:30px;
   width:100%;
@@ -79,63 +50,20 @@ input:focus {
   cursor:pointer;
   transition: background 0.2s;
 }
-.button-main:hover {
-  background:#0a84ff;
-}
-.warning {
-  font-size:0.95rem;
-  font-weight:600;
-  margin-top:16px;
-  text-align:center;
-}
-.results {
-  margin-top:30px;
-  text-align:center;
-  display:none;
-}
-.result-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-bottom:30px;
-}
-.result-card {
-  background:#f5f5f7;
-  padding:16px;
-  border-radius:16px;
-}
-.result-card.highlight {
-  background:#e8f0fe;
-  box-shadow:0 0 0 2px #0071e3 inset;
-}
-.result-card h1 {
-  margin:6px 0;
-  font-size:1.8rem;
-}
+.button-main:hover { background:#0a84ff; }
+.warning { font-size:0.95rem; font-weight:600; margin-top:16px; text-align:center; }
+.results { margin-top:30px; text-align:center; display:none; }
+.result-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:30px; }
+.result-card { background:#f5f5f7; padding:16px; border-radius:16px; }
+.result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
+.result-card h1 { margin:6px 0; font-size:1.8rem; }
 
 /* Chartbereich */
-.chart-container {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-top: 40px;
-  overflow: visible;
-}
-.y-axis-label {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: 0.75rem;
-  color: #666;
-  margin-right: 4px;
-  flex-shrink: 0;
-}
-canvas {
-  width:100%;
-  height:400px;
-  flex:1;
-}
+.chart-container { display:flex; align-items:center; justify-content:center; margin-top:40px; overflow: visible; }
+.y-axis-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.75rem; color: #666; margin-right: 4px; flex-shrink: 0; }
+canvas { width:100%; height:400px; flex:1; }
 
-/* --- MOBILE ANPASSUNGEN --- */
+/* MOBILE ANPASSUNGEN */
 @media (max-width:600px){
   canvas { height:400px !important; }
   .result-grid { grid-template-columns:1fr; margin-bottom:40px; }
@@ -144,52 +72,14 @@ canvas {
   .warning { font-size:0.9rem; }
 }
 
-footer {
-  text-align:center;
-  margin-top:20px;
-  font-size:13px;
-  color:#999;
-}
+footer { text-align:center; margin-top:20px; font-size:13px; color:#999; }
 footer a { color:#0071e3; text-decoration:none; }
 footer a:hover { text-decoration:underline; }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width:100%;
-  height:100%;
-  background: rgba(0,0,0,0.5);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
-}
-.overlay-content {
-  background:white;
-  padding:24px;
-  border-radius:16px;
-  width:90%;
-  max-width:600px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
-.overlay-content textarea {
-  width:100%;
-  height:120px;
-  font-family: monospace;
-  border-radius:8px;
-  border:1px solid #ccc;
-  padding:8px;
-}
-.close-btn {
-  background:#0071e3;
-  color:white;
-  border:none;
-  padding:8px 16px;
-  border-radius:8px;
-  margin-top:12px;
-  cursor:pointer;
-}
+.overlay { position: fixed; top: 0; left: 0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:999; }
+.overlay-content { background:white; padding:24px; border-radius:16px; width:90%; max-width:600px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+.overlay-content textarea { width:100%; height:120px; font-family: monospace; border-radius:8px; border:1px solid #ccc; padding:8px; }
+.close-btn { background:#0071e3; color:white; border:none; padding:8px 16px; border-radius:8px; margin-top:12px; cursor:pointer; }
 .close-btn:hover { background:#0a84ff; }
 </style>
 </head>
@@ -259,11 +149,13 @@ footer a:hover { text-decoration:underline; }
 let chart;
 
 function parseNum(v){
-  return parseFloat(v.replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,""))||0;
+  return parseFloat(v.toString().replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,""))||0;
 }
+
 function fmt(num,dec=2){
   return isFinite(num)?num.toLocaleString("de-DE",{minimumFractionDigits:dec,maximumFractionDigits:dec}):"–";
 }
+
 function updateNetto(){
   const gross=parseNum(document.getElementById("revenueGross").value);
   const variable=parseNum(document.getElementById("variableCost").value);
@@ -271,6 +163,13 @@ function updateNetto(){
   const ertrag=net-variable;
   document.getElementById("revenueNet").value = gross?fmt(net)+" €":"";
   document.getElementById("netProfitInfo").innerText = gross?`Netto-Ertrag pro Bestellung: ${fmt(ertrag)} €`:"";
+
+  // Tausenderpunkte in Inputs
+  ["revenueGross","variableCost","fixedCost","roas"].forEach(id=>{
+    const el=document.getElementById(id);
+    const val=parseNum(el.value);
+    if(val) el.value = fmt(val,0);
+  });
 }
 
 function calcBudget(){
@@ -308,7 +207,8 @@ function calcBudget(){
   const budgets=[];
   const profits=[];
   const maxBudget=Math.max(neededBudget*2,5000);
-  for(let i=0;i<=maxBudget;i+=500){
+  const step = maxBudget>5000 ? 500 : 100; // kleinere Schritte bei kleinen Budgets
+  for(let i=0;i<=maxBudget;i+=step){
     profits.push(i*z-fixed);
     budgets.push(i);
   }
@@ -316,33 +216,10 @@ function calcBudget(){
   const ctx=document.getElementById('budgetChart').getContext('2d');
   if(chart) chart.destroy();
 
-  const verticalLabelsPlugin = {
-    id: 'verticalLabels',
-    afterDraw(chart, args, opts) {
-      const {ctx, scales:{y}} = chart;
-      ctx.save();
-      ctx.font = (window.innerWidth < 600 ? '9px' : '11px') + ' sans-serif';
-      ctx.fillStyle = '#777';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      const ticks = y.ticks;
-      ticks.forEach(t => {
-        const yPos = y.getPixelForValue(t.value);
-        ctx.save();
-        ctx.translate(y.left - 8, yPos);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText(fmt(t.value, 0), 0, 0);
-        ctx.restore();
-      });
-      ctx.restore();
-    }
-  };
-
   chart=new Chart(ctx,{
     type:'line',
     data:{
-      labels:budgets.map(b=>fmt(b)),
+      labels:budgets.map(b=>fmt(b,0)),
       datasets:[{
         label:'Gewinn (€)',
         data:profits,
@@ -355,23 +232,25 @@ function calcBudget(){
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>fmt(ctx.raw,2)+" €"}}
+      },
       interaction:{mode:'nearest',intersect:false},
-      plugins:{legend:{display:false}},
       layout:{padding:{right:10,top:10}},
       scales:{
         y:{
           beginAtZero:true,
-          ticks:{padding:8}
+          ticks:{callback:v=>fmt(v,0), padding:8}
         },
         x:{
           ticks:{
-            callback: function(value){ return value==='0'?'':this.getLabelForValue(value); },
+            callback: v=>v==='0'?'':v,
             font:{size:window.innerWidth<600?9:11}
           }
         }
       }
-    },
-    plugins:[verticalLabelsPlugin]
+    }
   });
 
   document.getElementById("results").style.display="block";
