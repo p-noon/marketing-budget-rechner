@@ -19,38 +19,34 @@ body {
   padding: 32px;
   color: #1c1c1e;
 }
-h2 { text-align: center; font-size: 1.8rem; margin-bottom: 6px; }
-.subtitle { text-align: center; color: #666; margin-bottom: 24px; }
-.input-grid { display: flex; gap: 24px; flex-wrap: wrap; }
-.column { flex: 1; min-width: 280px; }
-label { font-size: 0.9rem; color: #444; display: block; margin-bottom: 6px; margin-top: 12px; }
-input { padding: 10px; border: 1px solid #d2d2d7; border-radius: 10px; font-size: 1rem; background: #f9f9f9; width: 100%; box-sizing: border-box; transition: all 0.2s; }
-input:focus { outline: none; border-color: #0071e3; background: white; box-shadow: 0 0 0 2px rgba(0,113,227,0.1); }
-.info { font-size: 0.85rem; color: #0071e3; margin-top: 6px; }
-.button-main { margin-top: 30px; width: 100%; background: #0071e3; color: white; font-weight: 600; border: none; border-radius: 14px; padding: 14px; font-size: 1.1rem; cursor: pointer; transition: background 0.2s; }
-.button-main:hover { background: #0a84ff; }
-.results { margin-top: 30px; text-align: center; display: none; }
-.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.result-card { background: #f5f5f7; padding: 16px; border-radius: 16px; }
-.result-card.highlight { background: #e8f0fe; box-shadow: 0 0 0 2px #0071e3 inset; }
-.result-card h1 { margin: 6px 0; font-size: 1.8rem; }
-canvas { margin-top: 20px; width: 100%; }
-.warning { color: #d70015; font-weight: 600; margin-top: 10px; }
-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #999; }
-footer a { color: #0071e3; text-decoration: none; }
-footer a:hover { text-decoration: underline; }
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
-.overlay-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.overlay-content textarea { width: 100%; height: 120px; font-family: monospace; border-radius: 8px; border: 1px solid #ccc; padding: 8px; }
-.close-btn { background: #0071e3; color: white; border: none; padding: 8px 16px; border-radius: 8px; margin-top: 12px; cursor: pointer; }
-.close-btn:hover { background: #0a84ff; }
-
-/* 📱 Mobile Anpassung */
-@media(max-width:600px){
-  .result-grid { grid-template-columns: 1fr; }
-}
+h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
+.subtitle { text-align:center; color:#666; margin-bottom:24px; }
+.input-grid { display: flex; gap:24px; flex-wrap:wrap; }
+.column { flex:1; min-width:280px; }
+label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
+input { padding:10px; border:1px solid #d2d2d7; border-radius:10px; font-size:1rem; background:#f9f9f9; width:100%; box-sizing:border-box; transition: all 0.2s; }
+input:focus { outline:none; border-color:#0071e3; background:white; box-shadow:0 0 0 2px rgba(0,113,227,0.1); }
+.info { font-size:0.85rem; color:#0071e3; margin-top:6px; }
+.button-main { margin-top:30px; width:100%; background:#0071e3; color:white; font-weight:600; border:none; border-radius:14px; padding:14px; font-size:1.1rem; cursor:pointer; transition: background 0.2s; }
+.button-main:hover { background:#0a84ff; }
+.results { margin-top:30px; text-align:center; display:none; }
+.result-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.result-card { background:#f5f5f7; padding:16px; border-radius:16px; }
+.result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
+.result-card h1 { margin:6px 0; font-size:1.8rem; }
+.gauge-container { width: 100%; max-width:600px; margin: 0 auto; height: 40px; background:#ddd; border-radius:20px; overflow:hidden; position:relative; }
+.gauge-fill { height:100%; background:#0071e3; width:0; transition: width 0.5s ease; }
+.gauge-label { position:absolute; top:0; left:50%; transform:translateX(-50%); font-weight:600; color:#fff; line-height:40px; }
+.warning { color:#d70015; font-weight:600; margin-top:10px; }
+footer { text-align:center; margin-top:20px; font-size:13px; color:#999; }
+footer a { color:#0071e3; text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+.overlay { position: fixed; top: 0; left: 0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:999; }
+.overlay-content { background:white; padding:24px; border-radius:16px; width:90%; max-width:600px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+.overlay-content textarea { width:100%; height:120px; font-family:monospace; border-radius:8px; border:1px solid #ccc; padding:8px; }
+.close-btn { background:#0071e3; color:white; border:none; padding:8px 16px; border-radius:8px; margin-top:12px; cursor:pointer; }
+.close-btn:hover { background:#0a84ff; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -62,11 +58,11 @@ footer a:hover { text-decoration: underline; }
     <div class="column">
       <h3>Grunddaten</h3>
       <label>Bruttoumsatz pro Bestellung (in €)</label>
-      <input id="revenueGross" type="text" placeholder="z. B. 60">
+      <input id="revenueGross" type="text" placeholder="z. B. 60" oninput="updateNetto()">
       <label>Netto-Umsatz (berechnet)</label>
       <input id="revenueNet" type="text" readonly style="background:#f0f0f0;">
       <label>Variable Kosten (Produktion + Versand, in €)</label>
-      <input id="variableCost" type="text" placeholder="z. B. 30">
+      <input id="variableCost" type="text" placeholder="z. B. 30" oninput="updateNetto()">
       <div id="netProfitInfo" class="info"></div>
     </div>
 
@@ -92,8 +88,13 @@ footer a:hover { text-decoration: underline; }
         <h1 id="neededBudget">–</h1>
       </div>
     </div>
+
+    <div class="gauge-container">
+      <div class="gauge-fill" id="gaugeFill"></div>
+      <div class="gauge-label" id="gaugeLabel">–</div>
+    </div>
+
     <p id="warning" class="warning"></p>
-    <canvas id="budgetChart"></canvas>
   </div>
 
   <footer>
@@ -111,23 +112,18 @@ footer a:hover { text-decoration: underline; }
 </div>
 
 <script>
-let chart;
+function parseNum(v){ return parseFloat(v.replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,""))||0; }
+function fmt(num,dec=2){ return isFinite(num)?num.toLocaleString("de-DE",{minimumFractionDigits:dec,maximumFractionDigits:dec}):"–"; }
 
-// ---- Zahlformatierung ----
-function parseNum(v){return parseFloat(v.replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,""))||0;}
-function fmt(num,dec=2){return isFinite(num)?num.toLocaleString("de-DE",{minimumFractionDigits:dec,maximumFractionDigits:dec}):"–";}
-
-// ---- Netto Ertrag aktualisieren ----
 function updateNetto(){
   const gross=parseNum(document.getElementById("revenueGross").value);
   const variable=parseNum(document.getElementById("variableCost").value);
   const net=gross/1.19;
   const ertrag=net-variable;
-  document.getElementById("revenueNet").value = gross?fmt(net,2)+" €":"";
-  document.getElementById("netProfitInfo").innerText = gross?`Netto-Ertrag pro Bestellung: ${fmt(ertrag,2)} €`:"";
+  document.getElementById("revenueNet").value = gross?fmt(net)+" €":"";
+  document.getElementById("netProfitInfo").innerText = gross?`Netto-Ertrag pro Bestellung: ${fmt(ertrag)} €`:"";
 }
 
-// ---- Budget berechnen ----
 function calcBudget(){
   const gross=parseNum(document.getElementById("revenueGross").value);
   const variable=parseNum(document.getElementById("variableCost").value);
@@ -136,90 +132,42 @@ function calcBudget(){
 
   const net=gross/1.19;
   const profitPerOrder=net-variable;
-  const profitPerEuro=(profitPerOrder/gross)*roas-1;
+  const profitPerEuro=(profitPerOrder/gross)*roas;
+  const results=document.getElementById("results");
+  results.style.display="block";
 
-  document.getElementById("results").style.display="block";
   document.getElementById("profitPerEuro").innerText=fmt(profitPerEuro);
+  let neededBudget=profitPerEuro>0?fixed/profitPerEuro:0;
+  document.getElementById("neededBudget").innerText=profitPerEuro>0?fmt(neededBudget)+" €":"–";
 
-  let neededBudget=0;
-  let warning="";
-  let maxBudget=10000;
-
-  if(fixed<=0){
-    warning= profitPerEuro>0?"Du machst ab dem ersten Euro Gewinn!":"Auch bei geringen Fixkosten machst du Verlust.";
-  } else if(profitPerEuro<=0){
-    warning="Unter dem aktuellen ROAS wird Verlust generiert.";
+  // Gauge
+  const gaugeFill=document.getElementById("gaugeFill");
+  const gaugeLabel=document.getElementById("gaugeLabel");
+  let perc=profitPerEuro>0?Math.min(100,(neededBudget>0?100:50)) : 0;
+  if(profitPerEuro>0 && neededBudget>0){
+    perc=Math.min(100, 100); // Always full gauge for mobile
+  } else if(profitPerEuro>0){
+    perc=50;
   } else {
-    neededBudget=fixed/profitPerEuro;
-    document.getElementById("neededBudget").innerText=fmt(neededBudget)+" €";
-    maxBudget=neededBudget*2;
+    perc=20;
   }
+  gaugeFill.style.width=perc+"%";
+  gaugeLabel.innerText=profitPerEuro>0?`Break-Even bei ${fmt(neededBudget)} €`:"Verlust";
 
-  if(profitPerEuro<=0) document.getElementById("neededBudget").innerText="-";
-  document.getElementById("warning").innerText=warning;
-
-  const budgets=[], profits=[];
-  for(let i=0;i<=maxBudget;i+=500){
-    budgets.push(i);
-    profits.push(i*profitPerEuro-fixed);
-  }
-
-  drawChart(budgets,profits);
+  const warning=document.getElementById("warning");
+  warning.innerText=profitPerEuro<=0?"Aktuell Verlust bei gegebenem ROAS":"";
 }
 
-// ---- Chart zeichnen ----
-function drawChart(budgets,profits){
-  const ctx=document.getElementById('budgetChart').getContext('2d');
-  if(chart) chart.destroy();
+// Input formatting
+['revenueGross','variableCost','fixedCost','roas'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('blur',()=>{ el.value=fmt(parseNum(el.value)).replace(",00",""); });
+  el.addEventListener('input',updateNetto);
+});
 
-  const isMobile=window.innerWidth<=600;
-  const chartHeight=isMobile?250:350;
-  document.getElementById('budgetChart').height=chartHeight;
-
-  chart=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:budgets.map(b=>b.toLocaleString('de-DE')),
-      datasets:[{
-        label:'Gewinn',
-        data:profits,
-        borderColor:'#0071e3',
-        borderWidth:2,
-        fill:false,
-        pointRadius:0,
-        tension:0.15
-      }]
-    },
-    options:{
-      responsive:true,
-      maintainAspectRatio:!isMobile,
-      interaction:{mode:'nearest',intersect:false},
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{
-          title:{display:true,text:'Marketingbudget (€)'},
-          ticks:{autoSkip:true,maxTicksLimit:6}
-        },
-        y:{
-          title:{display:true,text:'Gewinn (€)'},
-          ticks:{callback: val => fmt(val,0)},
-          grid:{color: ctx=>ctx.tick.value===0?'#d70015':'#ddd',lineWidth: ctx=>ctx.tick.value===0?2:1}
-        }
-      }
-    }
-  });
-}
-
-// ---- Overlay ----
-function closeOverlay(){document.getElementById("overlay").style.display="none";}
-document.getElementById("embedLink").addEventListener("click",e=>{e.preventDefault();document.getElementById("overlay").style.display="flex";});
-
-// ---- Input Listener für Formatierung ----
-document.querySelectorAll('#revenueGross,#variableCost,#fixedCost,#roas')
-  .forEach(el=>{
-    el.addEventListener('blur',()=>{el.value=fmt(parseNum(el.value),2).replace(",00","");});
-    el.addEventListener('input',()=>{updateNetto();});
-  });
+// Overlay
+function closeOverlay(){ document.getElementById("overlay").style.display="none"; }
+document.getElementById("embedLink").addEventListener("click",e=>{ e.preventDefault(); document.getElementById("overlay").style.display="flex"; });
 
 // Initial
 updateNetto();
