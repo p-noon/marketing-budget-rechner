@@ -91,7 +91,7 @@ input:focus {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:14px;
-  margin-bottom:30px; /* mehr Abstand zum Chart */
+  margin-bottom:30px;
 }
 .result-card {
   background:#f5f5f7;
@@ -107,38 +107,38 @@ input:focus {
   font-size:1.8rem;
 }
 
-/* Chart */
+/* Chartbereich */
+.chart-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.y-axis-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.75rem;
+  color: #666;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
 canvas {
   margin-top:20px;
   width:100%;
   height:300px;
+  flex: 1;
 }
 
 /* --- MOBILE ANPASSUNGEN --- */
 @media (max-width:600px){
-  canvas { height:600px !important; } /* wirklich hoher Chart */
+  canvas { height:600px !important; }
   .result-grid {
     grid-template-columns:1fr;
     margin-bottom:40px;
   }
-  .chart-container {
-    position: relative;
-  }
-  .chart-label-mobile {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #333;
-  }
-  .y-title-mobile {
-    position: absolute;
-    top: -20px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #666;
+  .y-axis-label {
+    font-size: 0.7rem;
+    margin-right: 2px;
   }
 }
 
@@ -243,8 +243,7 @@ footer a:hover {
     </div>
 
     <div class="chart-container">
-      <div class="chart-label-mobile">📈 Gewinnentwicklung</div>
-      <div class="y-title-mobile">Gewinn (€)</div>
+      <div class="y-axis-label">Gewinn (€)</div>
       <canvas id="budgetChart"></canvas>
     </div>
 
@@ -322,7 +321,7 @@ function calcBudget(){
     },
     options:{
       responsive:true,
-      maintainAspectRatio:false, /* ganz wichtig für feste Höhe */
+      maintainAspectRatio:false,
       interaction:{mode:'nearest',intersect:false},
       plugins:{legend:{display:false}},
       layout:{
@@ -338,16 +337,7 @@ function calcBudget(){
           }
         },
         y:{
-          title:{
-            display:window.innerWidth>600,
-            text:'Gewinn (€)'
-          },
-          ticks:{
-            display:window.innerWidth>600
-          },
-          grid:{
-            drawTicks:window.innerWidth>600
-          }
+          display:false  /* keine Skala, nur vertikales Label links */
         }
       }
     }
