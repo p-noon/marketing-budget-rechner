@@ -26,7 +26,7 @@ h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
 label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
 input { padding:10px; border:1px solid #d2d2d7; border-radius:10px; font-size:1rem; background:#f9f9f9; width:100%; box-sizing:border-box; transition: all 0.2s; }
 input:focus { outline:none; border-color:#0071e3; background:white; box-shadow:0 0 0 2px rgba(0,113,227,0.1); }
-.info { font-size:0.85rem; color:#0071e3; margin-top:6px; }
+.info { font-size:0.85rem; color: #0071e3; margin-top:6px; }
 .button-main { margin-top:30px; width:100%; background:#0071e3; color:white; font-weight:600; border:none; border-radius:14px; padding:14px; font-size:1.1rem; cursor:pointer; transition: background 0.2s; }
 .button-main:hover { background:#0a84ff; }
 .results { margin-top:30px; text-align:center; display:none; }
@@ -34,18 +34,21 @@ input:focus { outline:none; border-color:#0071e3; background:white; box-shadow:0
 .result-card { background:#f5f5f7; padding:16px; border-radius:16px; }
 .result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
 .result-card h1 { margin:6px 0; font-size:1.8rem; }
-.gauge-container { width: 100%; max-width:600px; margin: 0 auto; height: 40px; background:#ddd; border-radius:20px; overflow:hidden; position:relative; }
-.gauge-fill { height:100%; background:#0071e3; width:0; transition: width 0.5s ease; }
-.gauge-label { position:absolute; top:0; left:50%; transform:translateX(-50%); font-weight:600; color:#fff; line-height:40px; }
+canvas { margin-top:20px; width:100%; height:300px; }
 .warning { color:#d70015; font-weight:600; margin-top:10px; }
 footer { text-align:center; margin-top:20px; font-size:13px; color:#999; }
 footer a { color:#0071e3; text-decoration:none; }
 footer a:hover { text-decoration:underline; }
 .overlay { position: fixed; top: 0; left: 0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:999; }
 .overlay-content { background:white; padding:24px; border-radius:16px; width:90%; max-width:600px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
-.overlay-content textarea { width:100%; height:120px; font-family:monospace; border-radius:8px; border:1px solid #ccc; padding:8px; }
+.overlay-content textarea { width:100%; height:120px; font-family: monospace; border-radius:8px; border:1px solid #ccc; padding:8px; }
 .close-btn { background:#0071e3; color:white; border:none; padding:8px 16px; border-radius:8px; margin-top:12px; cursor:pointer; }
 .close-btn:hover { background:#0a84ff; }
+
+/* Mobile Anpassung */
+@media (max-width:600px){
+  canvas { height:200px; }
+}
 </style>
 </head>
 <body>
@@ -89,11 +92,7 @@ footer a:hover { text-decoration:underline; }
       </div>
     </div>
 
-    <div class="gauge-container">
-      <div class="gauge-fill" id="gaugeFill"></div>
-      <div class="gauge-label" id="gaugeLabel">–</div>
-    </div>
-
+    <canvas id="budgetChart"></canvas>
     <p id="warning" class="warning"></p>
   </div>
 
@@ -111,7 +110,10 @@ footer a:hover { text-decoration:underline; }
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let chart;
+
 function parseNum(v){ return parseFloat(v.replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,""))||0; }
 function fmt(num,dec=2){ return isFinite(num)?num.toLocaleString("de-DE",{minimumFractionDigits:dec,maximumFractionDigits:dec}):"–"; }
 
@@ -133,29 +135,48 @@ function calcBudget(){
   const net=gross/1.19;
   const profitPerOrder=net-variable;
   const profitPerEuro=(profitPerOrder/gross)*roas;
-  const results=document.getElementById("results");
-  results.style.display="block";
 
   document.getElementById("profitPerEuro").innerText=fmt(profitPerEuro);
-  let neededBudget=profitPerEuro>0?fixed/profitPerEuro:0;
+  const neededBudget=profitPerEuro>0?fixed/profitPerEuro:0;
   document.getElementById("neededBudget").innerText=profitPerEuro>0?fmt(neededBudget)+" €":"–";
 
-  // Gauge
-  const gaugeFill=document.getElementById("gaugeFill");
-  const gaugeLabel=document.getElementById("gaugeLabel");
-  let perc=profitPerEuro>0?Math.min(100,(neededBudget>0?100:50)) : 0;
-  if(profitPerEuro>0 && neededBudget>0){
-    perc=Math.min(100, 100); // Always full gauge for mobile
-  } else if(profitPerEuro>0){
-    perc=50;
-  } else {
-    perc=20;
+  // Chart
+  const budgets=[];
+  const profits=[];
+  const maxBudget=Math.max(neededBudget*2,5000);
+  for(let i=0;i<=maxBudget;i+=500){
+    profits.push(i*profitPerEuro-fixed);
+    budgets.push(i);
   }
-  gaugeFill.style.width=perc+"%";
-  gaugeLabel.innerText=profitPerEuro>0?`Break-Even bei ${fmt(neededBudget)} €`:"Verlust";
 
-  const warning=document.getElementById("warning");
-  warning.innerText=profitPerEuro<=0?"Aktuell Verlust bei gegebenem ROAS":"";
+  const ctx=document.getElementById('budgetChart').getContext('2d');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:budgets.map(b=>fmt(b)),
+      datasets:[{
+        label:'Gewinn (€)',
+        data:profits,
+        borderColor:'#0071e3',
+        backgroundColor:'rgba(0,113,227,0.1)',
+        fill:true,
+        tension:0.3
+      }]
+    },
+    options:{
+      responsive:true,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true,text:'Marketingbudget (€)'}},
+        y:{title:{display:true,text:'Gewinn (€)'}}
+      }
+    }
+  });
+
+  document.getElementById("results").style.display="block";
+  document.getElementById("warning").innerText=profitPerEuro<=0?"Aktuell Verlust bei gegebenem ROAS":"";
 }
 
 // Input formatting
@@ -169,7 +190,6 @@ function calcBudget(){
 function closeOverlay(){ document.getElementById("overlay").style.display="none"; }
 document.getElementById("embedLink").addEventListener("click",e=>{ e.preventDefault(); document.getElementById("overlay").style.display="flex"; });
 
-// Initial
 updateNetto();
 </script>
 
