@@ -18,7 +18,7 @@ class MarketingBudgetRechner extends HTMLElement {
           color: #1c1c1e;
         }
         h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
-        .subtitle { font-size: 1rem; text-align:center; color:#666; margin-bottom:24px; }
+        .subtitle { text-align:center; color:#666; margin-bottom:24px; }
         .input-grid { display:flex; gap:24px; flex-wrap:wrap; }
         .column { flex:1; min-width:280px; }
         label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
@@ -66,7 +66,6 @@ class MarketingBudgetRechner extends HTMLElement {
           padding:16px;
           border-radius:16px;
         }
-        .result-card p {font-size: 0.95rem;}
         .result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
         .result-card h1 { margin:6px 0; font-size:1.8rem; }
         .chart-container {
@@ -123,7 +122,7 @@ class MarketingBudgetRechner extends HTMLElement {
 
         <div class="input-grid">
           <div class="column">
-            <h3 style="font-size: 1.3rem;">Grunddaten</h3>
+            <h3>Grunddaten</h3>
             <label>Bruttoumsatz pro Bestellung (in €)</label>
             <input id="revenueGross" type="text" placeholder="z. B. 60">
             <label>Netto-Umsatz (berechnet)</label>
@@ -134,7 +133,7 @@ class MarketingBudgetRechner extends HTMLElement {
           </div>
 
           <div class="column">
-            <h3 style="font-size: 1.3rem;>Szenario</h3>
+            <h3>Szenario</h3>
             <label>Fixkosten extern (z. B. Agentur, Tools, in €)</label>
             <input id="fixedCost" type="text" placeholder="z. B. 1.000">
             <label>ROAS</label>
