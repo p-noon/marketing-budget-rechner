@@ -18,7 +18,7 @@ class MarketingBudgetRechner extends HTMLElement {
           color: #1c1c1e;
         }
         h2 { text-align:center; font-size:1.8rem; margin-bottom:6px; }
-        .subtitle { text-align:center; color:#666; margin-bottom:24px; }
+        .subtitle { font-size: 1rem; text-align:center; color:#666; margin-bottom:24px; }
         .input-grid { display:flex; gap:24px; flex-wrap:wrap; }
         .column { flex:1; min-width:280px; }
         label { font-size:0.9rem; color:#444; display:block; margin-bottom:6px; margin-top:12px; }
@@ -66,6 +66,7 @@ class MarketingBudgetRechner extends HTMLElement {
           padding:16px;
           border-radius:16px;
         }
+        .result-card p {font-size: 0.95rem;}
         .result-card.highlight { background:#e8f0fe; box-shadow:0 0 0 2px #0071e3 inset; }
         .result-card h1 { margin:6px 0; font-size:1.8rem; }
         .chart-container {
