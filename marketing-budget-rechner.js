@@ -122,7 +122,7 @@ class MarketingBudgetRechner extends HTMLElement {
 
         <div class="input-grid">
           <div class="column">
-            <h3>Grunddaten</h3>
+            <h3 style="font-size: 1.3rem;">Grunddaten</h3>
             <label>Bruttoumsatz pro Bestellung (in €)</label>
             <input id="revenueGross" type="text" placeholder="z. B. 60">
             <label>Netto-Umsatz (berechnet)</label>
@@ -133,7 +133,7 @@ class MarketingBudgetRechner extends HTMLElement {
           </div>
 
           <div class="column">
-            <h3>Szenario</h3>
+            <h3 style="font-size: 1.3rem;>Szenario</h3>
             <label>Fixkosten extern (z. B. Agentur, Tools, in €)</label>
             <input id="fixedCost" type="text" placeholder="z. B. 1.000">
             <label>ROAS</label>
